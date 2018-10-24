@@ -5,13 +5,21 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using EMRedemption.Models.CouponViewModels;
+using EMRedemption.Data;
 
 namespace EMRedemption.Controllers
 {
     public class CouponController : Controller
     {
-        // GET: Coupon
-        public ActionResult Index()
+        private readonly ApplicationDbContext _db;
+
+        public CouponController(ApplicationDbContext db)
+        {
+            _db = db;
+        }
+
+        [ActionName("Index")]
+        public ActionResult List()
         {
             List<CouponViewModel> models = new List<CouponViewModel>()
             {
@@ -20,6 +28,8 @@ namespace EMRedemption.Controllers
                 new CouponViewModel {LineNo=3, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
                 new CouponViewModel {LineNo=4, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
             };
+
+            //var models = 
 
             return View(models);
         }
@@ -45,7 +55,7 @@ namespace EMRedemption.Controllers
             {
                 // TODO: Add insert logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(List));
             }
             catch
             {
@@ -68,7 +78,7 @@ namespace EMRedemption.Controllers
             {
                 // TODO: Add update logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(List));
             }
             catch
             {
@@ -91,7 +101,7 @@ namespace EMRedemption.Controllers
             {
                 // TODO: Add delete logic here
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(List));
             }
             catch
             {
