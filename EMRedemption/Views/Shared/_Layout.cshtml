@@ -34,7 +34,7 @@
                     <li><a asp-area="" asp-controller="Redemption" asp-action="Index">Manage Redemptions</a></li>
                     <li><a asp-area="" asp-controller="Coupon" asp-action="Index">Manage Coupons</a></li>
                 </ul>
-                <partial name="_LoginPartial" />
+                @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
     </nav>

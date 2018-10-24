@@ -17,7 +17,7 @@ namespace EMRedemption.Controllers
             {
                 new CouponViewModel {LineNo=1, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
                 new CouponViewModel {LineNo=2, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
-                new CouponViewModel {LineNo=3,Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
+                new CouponViewModel {LineNo=3, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
                 new CouponViewModel {LineNo=4, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
             };
 

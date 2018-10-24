@@ -21,7 +21,10 @@ namespace EMRedemption.Models.CouponViewModels
         [DisplayName("Expire Date")]
         public DateTime ExpireDate { get; set; }
 
+        [DisplayName("Added By")]
         public string AddBy { get; set; }
+
+        [DisplayName("Added Date")]
         public DateTime AddDate { get; set; }
 
         public bool IsUsed { get; set; }
