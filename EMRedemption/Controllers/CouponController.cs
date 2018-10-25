@@ -6,32 +6,52 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using EMRedemption.Models.CouponViewModels;
 using EMRedemption.Data;
+using EMRedemption.Entities;
+using Microsoft.AspNetCore.Identity;
+using EMRedemption.Models;
 
 namespace EMRedemption.Controllers
 {
     public class CouponController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public CouponController(ApplicationDbContext db)
+        public CouponController(
+            ApplicationDbContext db,
+            SignInManager<ApplicationUser> signInManager
+            )
         {
             _db = db;
+            _signInManager = signInManager;
         }
 
         [ActionName("Index")]
         public ActionResult List()
         {
-            List<CouponViewModel> models = new List<CouponViewModel>()
-            {
-                new CouponViewModel {LineNo=1, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
-                new CouponViewModel {LineNo=2, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
-                new CouponViewModel {LineNo=3, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
-                new CouponViewModel {LineNo=4, Code = "123456", Price = 300, AddBy = "Kasem", AddDate = DateTime.Now, IsUsed = false},
-            };
-
-            //var models = 
+            var i = 0;
+            var models = _db.Coupons.AsEnumerable()
+                        .Select(c =>
+                        {
+                            i++;
+                            return new CouponViewModel
+                            {
+                                LineNo = i,
+                                Id = c.Id,
+                                Code = c.Code,
+                                ExpireDate = c.ExpireDate,
+                                IsUsed = c.RedemptionId != null ? true : false,
+                                AddBy = c.AddBy,
+                                AddDate = c.AddDate,
+                            };
+                        }).ToList();
 
             return View(models);
+        }
+
+        public ActionResult Create()
+        {
+            return View();
         }
 
         // GET: Coupon/Details/5
@@ -40,26 +60,27 @@ namespace EMRedemption.Controllers
             return View();
         }
 
-        // GET: Coupon/Create
-        public ActionResult Create()
-        {
-            return View();
-        }
-
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult Create([Bind("Code,CouponPrice,ExpireDate")] CouponViewModel model)
         {
+            if (!ModelState.IsValid)
+                return View(model);
+
             try
             {
-                // TODO: Add insert logic here
+                
+                Coupon coupon = new Coupon(model.Code, model.Price, model.ExpireDate,User.Identity.Name);
+
+                _db.Add(coupon);
+                _db.SaveChanges();
 
                 return RedirectToAction(nameof(List));
             }
             catch
             {
-                return View();
+                return View(model);
             }
         }
 
