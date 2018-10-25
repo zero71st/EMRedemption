@@ -26,6 +26,7 @@ namespace EMRedemption.Controllers
             _signInManager = signInManager;
         }
 
+        [HttpGet]
         [ActionName("Index")]
         public ActionResult List()
         {
@@ -63,11 +64,10 @@ namespace EMRedemption.Controllers
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Code,CouponPrice,ExpireDate")] CouponViewModel model)
+        public ActionResult Create([Bind("Code,Price,ExpireDate")] CouponViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
-
             try
             {
                 
@@ -76,7 +76,7 @@ namespace EMRedemption.Controllers
                 _db.Add(coupon);
                 _db.SaveChanges();
 
-                return RedirectToAction(nameof(List));
+                return RedirectToAction("Index");
             }
             catch
             {
@@ -84,10 +84,15 @@ namespace EMRedemption.Controllers
             }
         }
 
-        // GET: Coupon/Edit/5
+        [HttpGet]
         public ActionResult Edit(int id)
         {
-            return View();
+            var model = _db.Coupons.Find(id);
+            if (model == null)
+                return NotFound();
+
+
+            return View(model);
         }
 
         // POST: Coupon/Edit/5

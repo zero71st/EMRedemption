@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,7 +14,6 @@ namespace EMRedemption.Entities
         public int CouponPrice { get; set; }
         public int Quantity { get; set; }
         public RedemptionStatus Status { get; set; }
-
         public DateTime FetchTime { get; set; }
         public virtual List<Coupon> Coupons { get; set; }
 
