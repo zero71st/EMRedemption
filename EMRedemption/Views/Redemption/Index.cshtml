@@ -10,21 +10,27 @@
 @*<div class="page-header">
     </div>*@
 <p>
-    <button class="btn btn-default" type="reset">
-        <span class="glyphicon glyphicon-refresh" aria-hidden="true"></span>Refresh
-    </button>
-    <button class="btn btn-default" type="reset">Send All</button>
+    <a class="btn btn-default">
+        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Process Stock
+    </a>
 </p>
 
 <form class="form-inline">
     <div class="form-group">
+        <select class="form-control" id="sel1">
+            <option>Pending Process Stock</option>
+            <option>Processed Stock</option>
+            <option>All</option>
+        </select>
+    </div>
+    @*<div class="form-group">
         <div class='input-group date' id='datetimepicker1'>
             <input type='text' class="form-control" />
             <span class="input-group-addon">
                 <span class="glyphicon glyphicon-calendar"></span>
             </span>
         </div>
-    </div>
+    </div>*@
 
     <script type="text/javascript">
         $(function () {
