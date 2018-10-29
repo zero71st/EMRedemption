@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EMRedemption.Entities;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -28,5 +29,17 @@ namespace EMRedemption.Models.CouponViewModels
         public DateTime AddDate { get; set; }
 
         public bool IsUsed { get; set; }
+
+        public CouponViewModel()
+        {
+
+        }
+
+        public CouponViewModel(Coupon coupon):this()
+        {
+            Code = coupon.Code;
+            Price = coupon.Price;
+            ExpireDate = coupon.ExpireDate;
+        }
     }
 }

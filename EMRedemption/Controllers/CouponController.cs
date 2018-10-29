@@ -9,6 +9,7 @@ using EMRedemption.Data;
 using EMRedemption.Entities;
 using Microsoft.AspNetCore.Identity;
 using EMRedemption.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EMRedemption.Controllers
 {
@@ -26,13 +27,20 @@ namespace EMRedemption.Controllers
             _signInManager = signInManager;
         }
 
+        
         [HttpGet]
-        [ActionName("Index")]
-        public ActionResult List()
+        [Authorize]
+        public ActionResult Index(string search)
         {
+            var coupons = _db.Coupons.AsEnumerable();
+
+            if (!String.IsNullOrEmpty(search))
+            {
+                coupons = coupons.Where(c => c.Code.Contains(search));
+            }
+
             var i = 0;
-            var models = _db.Coupons.AsEnumerable()
-                        .Select(c =>
+            var models = coupons.Select(c =>
                         {
                             i++;
                             return new CouponViewModel
@@ -40,6 +48,7 @@ namespace EMRedemption.Controllers
                                 LineNo = i,
                                 Id = c.Id,
                                 Code = c.Code,
+                                Price = c.Price,
                                 ExpireDate = c.ExpireDate,
                                 IsUsed = c.RedemptionId != null ? true : false,
                                 AddBy = c.AddBy,
@@ -54,13 +63,6 @@ namespace EMRedemption.Controllers
         {
             return View();
         }
-
-        // GET: Coupon/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -76,7 +78,7 @@ namespace EMRedemption.Controllers
                 _db.Add(coupon);
                 _db.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             catch
             {
@@ -84,27 +86,49 @@ namespace EMRedemption.Controllers
             }
         }
 
+        // GET: Coupon/Details/5
+        public ActionResult Details(int id)
+        {
+            return View();
+        }
+
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var model = _db.Coupons.Find(id);
-            if (model == null)
+            var coupon = _db.Coupons.Find(id);
+            if (coupon == null)
                 return NotFound();
 
+            CouponViewModel model = new CouponViewModel(coupon);
 
             return View(model);
         }
 
-        // POST: Coupon/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        public ActionResult Edit(int id,[Bind("Id,Code,Price,ExpireDate")]CouponViewModel model)
         {
+            if (!ModelState.IsValid)
+                return View(model);
+
             try
             {
-                // TODO: Add update logic here
+                var coupon = _db.Coupons.Find(id);
+                if (coupon != null)
+                {
+                    coupon.Code = model.Code;
+                    coupon.Price = model.Price;
+                    coupon.ExpireDate = model.ExpireDate;
 
-                return RedirectToAction(nameof(List));
+                    _db.Update(coupon);
+                    _db.SaveChanges();
+
+                    return RedirectToAction(nameof(Index));
+                }
+                else
+                {
+                    return View();
+                }
             }
             catch
             {
@@ -127,7 +151,7 @@ namespace EMRedemption.Controllers
             {
                 // TODO: Add delete logic here
 
-                return RedirectToAction(nameof(List));
+                return RedirectToAction(nameof(Index));
             }
             catch
             {
