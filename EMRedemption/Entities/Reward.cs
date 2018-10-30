@@ -9,7 +9,9 @@ namespace EMRedemption.Entities
     public class Reward:BaseEntity
     {
         public string Code { get; set; }
+        public string SerialNo { get; set; }
         public string Description { get; set; }
+        public string RewardType { get; set; }
         public DateTime ExpireDate { get; set; }
         public string AddBy { get; set; }
         public DateTime AddDate { get; set; }
