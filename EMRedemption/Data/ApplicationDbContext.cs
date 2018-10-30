@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using EMRedemption.Models;
 using EMRedemption.Entities;
-using EMRedemption.Models.CouponViewModels;
+using EMRedemption.Models.RewardViewModels;
 
 namespace EMRedemption.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<Coupon> Coupons { get; set; }
+        public DbSet<Reward> Coupons { get; set; }
         public DbSet<Redemption> Redemptions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
@@ -28,7 +28,5 @@ namespace EMRedemption.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
-
-        public DbSet<EMRedemption.Models.CouponViewModels.CouponViewModel> CouponViewModel { get; set; }
     }
 }

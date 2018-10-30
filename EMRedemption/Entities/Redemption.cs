@@ -8,14 +8,17 @@ namespace EMRedemption.Entities
 {
     public class Redemption:BaseEntity
     {
-        public DateTime RedeemDate { get; set; }
-        public string DealerName { get; set; }
-        public string Email { get; set; }
-        public int CouponPrice { get; set; }
+        public string RetailerName { get; set; }
+        public string RetailerStoreName { get; set; }
+        public string RetailerEmailAddress { get; set; }
+        public string RetailerPhoneNumber { get; set; }
+        public int RewardCode { get; set; }
         public int Quantity { get; set; }
         public RedemptionStatus Status { get; set; }
-        public DateTime FetchTime { get; set; }
-        public virtual List<Coupon> Coupons { get; set; }
+        public DateTime RedeemDateTime { get; set; }
+        public DateTime FatchDateTime { get; set; }
+
+        public virtual List<Reward> Rewards { get; set; }
 
         public Redemption()
         {
@@ -24,11 +27,11 @@ namespace EMRedemption.Entities
 
         public Redemption(DateTime redeemDate,string dealerName,string email,int couponPrice,int quantity,DateTime fetchTime):this()
         {
-            FetchTime = fetchTime;
-            RedeemDate = redeemDate;
-            DealerName = dealerName;
-            Email = email;
-            CouponPrice = couponPrice;
+            FatchDateTime = fetchTime;
+            RedeemDateTime = redeemDate;
+            RetailerName = dealerName;
+            RetailerEmailAddress = email;
+            RewardCode = couponPrice;
             Quantity = quantity;
         }
         

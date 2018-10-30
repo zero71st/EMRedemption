@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using EMRedemption.Models.CouponViewModels;
+using EMRedemption.Models.RewardViewModels;
 using EMRedemption.Data;
 using EMRedemption.Entities;
 using Microsoft.AspNetCore.Identity;
@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace EMRedemption.Controllers
 {
-    public class CouponController : Controller
+    public class RewardController : Controller
     {
         private readonly ApplicationDbContext _db;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public CouponController(
+        public RewardController(
             ApplicationDbContext db,
             SignInManager<ApplicationUser> signInManager
             )
@@ -43,12 +43,12 @@ namespace EMRedemption.Controllers
             var models = coupons.Select(c =>
                         {
                             i++;
-                            return new CouponViewModel
+                            return new RewardViewModel
                             {
                                 LineNo = i,
                                 Id = c.Id,
                                 Code = c.Code,
-                                Price = c.Price,
+                                Description = c.Description,
                                 ExpireDate = c.ExpireDate,
                                 IsUsed = c.RedemptionId != null ? true : false,
                                 AddBy = c.AddBy,
@@ -66,14 +66,14 @@ namespace EMRedemption.Controllers
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Code,Price,ExpireDate")] CouponViewModel model)
+        public ActionResult Create([Bind("Code,Price,ExpireDate")] RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
             try
             {
                 
-                Coupon coupon = new Coupon(model.Code, model.Price, model.ExpireDate,User.Identity.Name);
+                Reward coupon = new Reward(model.Code, model.Description, model.ExpireDate,User.Identity.Name);
 
                 _db.Add(coupon);
                 _db.SaveChanges();
@@ -99,14 +99,14 @@ namespace EMRedemption.Controllers
             if (coupon == null)
                 return NotFound();
 
-            CouponViewModel model = new CouponViewModel(coupon);
+            RewardViewModel model = new RewardViewModel(coupon);
 
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,[Bind("Id,Code,Price,ExpireDate")]CouponViewModel model)
+        public ActionResult Edit(int id,[Bind("Id,Code,Price,ExpireDate")]RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -117,7 +117,7 @@ namespace EMRedemption.Controllers
                 if (coupon != null)
                 {
                     coupon.Code = model.Code;
-                    coupon.Price = model.Price;
+                    coupon.Description = model.Description;
                     coupon.ExpireDate = model.ExpireDate;
 
                     _db.Update(coupon);

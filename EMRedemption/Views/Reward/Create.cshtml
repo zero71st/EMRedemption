@@ -1,19 +1,10 @@
-﻿@model CouponViewModel
-
-@{
-    ViewData["Title"] = "Edit";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Edit Coupon</h2>
-
-<h4>Code @Model.Code</h4>
+﻿@model RewardViewModel
+<h4>Create Coupon</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Id" />
+        <form asp-action="Create">
+            <div asp-validation-summary="All"  class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Code" class="control-label"></label>
                 <input asp-for="Code" class="form-control" />
@@ -29,16 +20,9 @@
                 <input asp-for="ExpireDate" class="form-control" />
                 <span asp-validation-for="ExpireDate" class="text-danger"></span>
             </div>
-            @*<div class="form-group">
-                <div class="checkbox">
-                    <label>
-                        <input asp-for="IsUsed" /> @Html.DisplayNameFor(model => model.IsUsed)
-                    </label>
-                </div>
-            </div>*@
             <p>
-                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span>Save</button>
-                <a asp-action="Index" class="btn btn-primary"><span class="glyphicon glyphicon-ban-circle"></span>Cancel</a>
+                <button  type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span>Save</button>
+                <a class="btn btn-primary" asp-action="Index"><span class="glyphicon glyphicon-ban-circle"></span>Cancel</a>
             </p>
         </form>
     </div>

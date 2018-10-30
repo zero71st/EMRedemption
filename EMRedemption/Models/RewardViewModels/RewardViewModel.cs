@@ -5,19 +5,25 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace EMRedemption.Models.CouponViewModels
+namespace EMRedemption.Models.RewardViewModels
 {
-    public class CouponViewModel
+    public class RewardViewModel
     {
         public int Id { get; set; }
 
         public int LineNo { get; set; }
 
-        [DisplayName("Coupon Code")]
+        [DisplayName("Reward Code")]
         public string Code { get; set; }
 
-        [DisplayName("Coupon Price")]
-        public int Price { get; set; }
+        [DisplayName("Serial Number")]
+        public string SerialNo { get; set; }
+
+        [DisplayName("Reward Description")]
+        public string Description { get; set; }
+
+        [DisplayName("Reward Type")]
+        public string RewardType { get; set; }
 
         [DisplayName("Expire Date")]
         public DateTime ExpireDate { get; set; }
@@ -30,16 +36,16 @@ namespace EMRedemption.Models.CouponViewModels
 
         public bool IsUsed { get; set; }
 
-        public CouponViewModel()
+        public RewardViewModel()
         {
 
         }
 
-        public CouponViewModel(Coupon coupon):this()
+        public RewardViewModel(Reward reward):this()
         {
-            Code = coupon.Code;
-            Price = coupon.Price;
-            ExpireDate = coupon.ExpireDate;
+            Code = reward.Code;
+            Description = reward.Description;
+            ExpireDate = reward.ExpireDate;
         }
     }
 }
