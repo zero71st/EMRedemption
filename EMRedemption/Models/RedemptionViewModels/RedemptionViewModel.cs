@@ -10,13 +10,13 @@ namespace EMRedemption.Models.RedemptionViewModels
     public class RedemptionViewModel
     {
         public int Id { get; set; }
-
         public bool Selected { get; set; }
 
+        [DisplayName("#")]
         public int LineNo { get; set; }
 
-        [DisplayName("Redeem Date")]
-        public DateTime RedeemDate { get; set; }
+        [DisplayName("Redeem DateTime")]
+        public DateTime RedeemDateTime { get; set; }
 
         [DisplayName("Dealer Name")]
         public string DealerName { get; set; }
@@ -24,10 +24,6 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("E-mail")]
         public string Email { get; set; }
 
-        [DisplayName("Coupon Price")]
-        public int CouponPrice { get; set; }
-
-        public int Quantity { get; set; }
-
+        public List<RedemptionItemViewModel> RedemptionItems { get; set; }
     }
 }

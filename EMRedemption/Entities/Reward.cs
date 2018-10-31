@@ -16,8 +16,8 @@ namespace EMRedemption.Entities
         public string AddBy { get; set; }
         public DateTime AddDate { get; set; }
 
-        public int? RedemptionId { get; set; }
-        public virtual Redemption Redemption { get; set; }
+        public int? RedemptionItemId { get; set; }
+        public virtual RedemptionItem RedemptionItem { get; set; }
 
         public Reward()
         {

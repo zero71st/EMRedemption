@@ -50,7 +50,7 @@ namespace EMRedemption.Controllers
                                 Code = c.Code,
                                 Description = c.Description,
                                 ExpireDate = c.ExpireDate,
-                                IsUsed = c.RedemptionId != null ? true : false,
+                                IsUsed = c.RedemptionItemId != null ? true : false,
                                 AddBy = c.AddBy,
                                 AddDate = c.AddDate,
                             };

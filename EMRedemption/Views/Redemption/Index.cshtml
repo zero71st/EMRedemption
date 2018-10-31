@@ -52,19 +52,13 @@
                 #
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.RedeemDate)
+                @Html.DisplayNameFor(model => model.RedeemDateTime)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.DealerName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CouponPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Quantity)
             </th>
             <th></th>
         </tr>
@@ -76,21 +70,14 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.LineNo)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RedeemDate)
-                </td>
+               
                 <td>
                     @Html.DisplayFor(modelItem => item.DealerName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.CouponPrice)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Quantity)
-                </td>
+               
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success btn-sm">
                         <span class="glyphicon glyphicon-send"></span>

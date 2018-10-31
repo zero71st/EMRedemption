@@ -19,54 +19,6 @@ namespace EMRedemption.Data.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.0.3-rtm-10026");
 
-            modelBuilder.Entity("EMRedemption.Entities.Coupon", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("AddBy");
-
-                    b.Property<DateTime>("AddDate");
-
-                    b.Property<string>("Code");
-
-                    b.Property<DateTime>("ExpireDate");
-
-                    b.Property<int>("Price");
-
-                    b.Property<int?>("RedemptionId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RedemptionId");
-
-                    b.ToTable("Coupons");
-                });
-
-            modelBuilder.Entity("EMRedemption.Entities.Redemption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("CouponPrice");
-
-                    b.Property<string>("DealerName");
-
-                    b.Property<string>("Email");
-
-                    b.Property<DateTime>("FetchTime");
-
-                    b.Property<int>("Quantity");
-
-                    b.Property<DateTime>("RedeemDate");
-
-                    b.Property<int>("Status");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Redemptions");
-                });
-
             modelBuilder.Entity("EMRedemption.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")

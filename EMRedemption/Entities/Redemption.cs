@@ -8,31 +8,26 @@ namespace EMRedemption.Entities
 {
     public class Redemption:BaseEntity
     {
+        public int TrasactionID { get; set; }
         public string RetailerName { get; set; }
         public string RetailerStoreName { get; set; }
         public string RetailerEmailAddress { get; set; }
         public string RetailerPhoneNumber { get; set; }
-        public int RewardCode { get; set; }
-        public int Quantity { get; set; }
         public RedemptionStatus Status { get; set; }
         public DateTime RedeemDateTime { get; set; }
         public DateTime FatchDateTime { get; set; }
-
-        public virtual List<Reward> Rewards { get; set; }
 
         public Redemption()
         {
             Status = RedemptionStatus.New;
         }
 
-        public Redemption(DateTime redeemDate,string dealerName,string email,int couponPrice,int quantity,DateTime fetchTime):this()
+        public Redemption(DateTime redeemDateTime,string retialerName,string email,DateTime fetchTime):this()
         {
-            FatchDateTime = fetchTime;
-            RedeemDateTime = redeemDate;
-            RetailerName = dealerName;
+            RedeemDateTime = redeemDateTime;
             RetailerEmailAddress = email;
-            RewardCode = couponPrice;
-            Quantity = quantity;
+            FatchDateTime = fetchTime;
+            RetailerName = retialerName;
         }
         
         public void SetAsProcessStock()
