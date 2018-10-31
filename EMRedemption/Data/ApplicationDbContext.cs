@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using EMRedemption.Models;
 using EMRedemption.Entities;
 using EMRedemption.Models.RewardViewModels;
+using EMRedemption.Models.RedemptionViewModels;
 
 namespace EMRedemption.Data
 {
@@ -29,5 +30,7 @@ namespace EMRedemption.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
+
+        public DbSet<EMRedemption.Models.RedemptionViewModels.RedemptionViewModel> RedemptionViewModel { get; set; }
     }
 }

@@ -1,0 +1,78 @@
+﻿@model IEnumerable<EMRedemption.Models.RedemptionViewModels.RedemptionViewModel>
+
+@{
+    ViewData["Title"] = "Manual Call Api";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Manual Call Api</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Selected)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LineNo)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.TransactionID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RetailerName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RetailerStoreName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RetailerEmailAddress)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RetailerPhoneNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.RedeemDateTime)
+                </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Selected)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LineNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerStoreName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RedeemDateTime)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
