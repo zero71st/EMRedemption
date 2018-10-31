@@ -7,7 +7,7 @@ namespace EMRedemption.Models.Jsons
 {
     public class RedeemDetail
     {
-        public int TransactionID { get; set; }
+        public string TransactionID { get; set; }
         public string retailerName { get; set; }
         public string retailerStoreName { get; set; }
         public string retailerEmailAddress { get; set; }

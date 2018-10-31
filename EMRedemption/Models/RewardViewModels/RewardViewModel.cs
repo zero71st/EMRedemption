@@ -44,7 +44,9 @@ namespace EMRedemption.Models.RewardViewModels
         public RewardViewModel(Reward reward):this()
         {
             Code = reward.Code;
+            SerialNo = reward.SerialNo;
             Description = reward.Description;
+            RewardType = reward.RewardType;
             ExpireDate = reward.ExpireDate;
         }
     }

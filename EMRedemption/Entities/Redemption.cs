@@ -24,10 +24,10 @@ namespace EMRedemption.Entities
 
         public Redemption(DateTime redeemDateTime,string retialerName,string email,DateTime fetchTime):this()
         {
-            RedeemDateTime = redeemDateTime;
             RetailerEmailAddress = email;
             FatchDateTime = fetchTime;
             RetailerName = retialerName;
+            RedeemDateTime = redeemDateTime;
         }
         
         public void SetAsProcessStock()

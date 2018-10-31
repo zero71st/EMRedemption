@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using MySql.Data.MySqlClient;
 using EMRedemption.Models.Jsons;
 
-
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace EMRedemption.Controllers
@@ -31,18 +30,19 @@ namespace EMRedemption.Controllers
             var content = new FormUrlEncodedContent(new[]
              {
                 new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
-                new KeyValuePair<string, string>("startDate", "2018-10-30"),
-                new KeyValuePair<string,string>("endDate","2018-10-30")
+                //new KeyValuePair<string, string>("startDate", "2018-10-30"),
+                //new KeyValuePair<string,string>("endDate","2018-10-31")
              });
 
             var resp = await client.PostAsync("",content);
 
             var jsonString = await resp.Content.ReadAsStringAsync();
 
-            var jsonObjects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
+            var objects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
 
-            var models = jsonObjects.redeemDetails.Select(r => new RedemptionViewModel
+            var models = objects.redeemDetails.Select(r => new RedemptionViewModel
             {
+                TransactionID = r.TransactionID,
                 RetailerName = r.retailerName,
                 RetailerStoreName = r.retailerStoreName,
                 RetailerEmailAddress = r.retailerEmailAddress,

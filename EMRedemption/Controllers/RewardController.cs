@@ -27,20 +27,19 @@ namespace EMRedemption.Controllers
             _signInManager = signInManager;
         }
 
-        
         [HttpGet]
         [Authorize]
         public ActionResult Index(string search)
         {
-            var coupons = _db.Coupons.AsEnumerable();
+            var rewards = _db.Coupons.AsEnumerable();
 
             if (!String.IsNullOrEmpty(search))
             {
-                coupons = coupons.Where(c => c.Code.Contains(search));
+                rewards = rewards.Where(c => c.Code.Contains(search));
             }
 
             var i = 0;
-            var models = coupons.Select(c =>
+            var models = rewards.Select(c =>
                         {
                             i++;
                             return new RewardViewModel
@@ -48,7 +47,9 @@ namespace EMRedemption.Controllers
                                 LineNo = i,
                                 Id = c.Id,
                                 Code = c.Code,
+                                SerialNo = c.SerialNo,
                                 Description = c.Description,
+                                RewardType = c.RewardType,
                                 ExpireDate = c.ExpireDate,
                                 IsUsed = c.RedemptionItemId != null ? true : false,
                                 AddBy = c.AddBy,
@@ -66,16 +67,16 @@ namespace EMRedemption.Controllers
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Code,Price,ExpireDate")] RewardViewModel model)
+        public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate")] RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
+
             try
             {
-                
-                Reward coupon = new Reward(model.Code, model.Description, model.ExpireDate,User.Identity.Name);
+                Reward reward = new Reward(model.Code,model.SerialNo, model.Description,model.RewardType, model.ExpireDate,User.Identity.Name);
 
-                _db.Add(coupon);
+                _db.Add(reward);
                 _db.SaveChanges();
 
                 return RedirectToAction(nameof(Index));
@@ -106,21 +107,23 @@ namespace EMRedemption.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,[Bind("Id,Code,Price,ExpireDate")]RewardViewModel model)
+        public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate")]RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                var coupon = _db.Coupons.Find(id);
-                if (coupon != null)
+                var reward = _db.Coupons.Find(id);
+                if (reward != null)
                 {
-                    coupon.Code = model.Code;
-                    coupon.Description = model.Description;
-                    coupon.ExpireDate = model.ExpireDate;
+                    reward.Code = model.Code;
+                    reward.SerialNo = model.SerialNo;
+                    reward.Description = model.Description;
+                    reward.RewardType = model.RewardType;
+                    reward.ExpireDate = model.ExpireDate;
 
-                    _db.Update(coupon);
+                    _db.Update(reward);
                     _db.SaveChanges();
 
                     return RedirectToAction(nameof(Index));
