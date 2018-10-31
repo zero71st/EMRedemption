@@ -15,14 +15,23 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("#")]
         public int LineNo { get; set; }
 
+        [DisplayName("Transaction ID")]
+        public string TransactionID { get; set; }
+
+        [DisplayName("Retailer Name")]
+        public string RetailerName { get; set; }
+
+        [DisplayName("Store Name")]
+        public string RetailerStoreName { get; set; }
+
+        [DisplayName("Email Address")]
+        public string RetailerEmailAddress { get; set; }
+
+        [DisplayName("Phone Number")]
+        public string RetailerPhoneNumber { get; set; }
+
         [DisplayName("Redeem DateTime")]
-        public DateTime RedeemDateTime { get; set; }
-
-        [DisplayName("Dealer Name")]
-        public string DealerName { get; set; }
-
-        [DisplayName("E-mail")]
-        public string Email { get; set; }
+        public string RedeemDateTime { get; set; }
 
         public List<RedemptionItemViewModel> RedemptionItems { get; set; }
     }
