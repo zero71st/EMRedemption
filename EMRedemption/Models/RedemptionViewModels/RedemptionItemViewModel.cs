@@ -13,10 +13,10 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("#")]
         public int LineNo { get; set; }
 
-        [DisplayName("Reward Code")]
+        [DisplayName("Code")]
         public string RewardCode {get;set;}
 
-        [DisplayName("Reward Points")]
+        [DisplayName("Points")]
         public int Points { get; set; }
 
         [DisplayName("Quantity")]

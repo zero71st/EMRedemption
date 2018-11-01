@@ -13,6 +13,7 @@ namespace EMRedemption.Models.Jsons
         public string retailerEmailAddress { get; set; }
         public string retailerAddress { get; set; }
         public string retailerPhoneNumber { get; set; }
+        public DateTime RedeemDateTime { get; set; }
 
         public List<productDetail> productDetails { get; set; }
     }

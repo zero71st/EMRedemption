@@ -19,20 +19,33 @@ namespace EMRedemption.Controllers
         // GET: /<controller>/
         public IActionResult Index()
         {
+
             return View();
         }
 
-        public async Task<IActionResult> CallApi()
+        public async Task<IActionResult> CallApi(string startDate, string endDate)
         {
             var client = new HttpClient();
             client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
 
-            var content = new FormUrlEncodedContent(new[]
-             {
-                new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
-                //new KeyValuePair<string, string>("startDate", "2018-10-30"),
-                //new KeyValuePair<string,string>("endDate","2018-10-31")
-             });
+            FormUrlEncodedContent content = null;
+
+            if (!String.IsNullOrEmpty(startDate))
+            {
+                content = new FormUrlEncodedContent(new[]
+                 {
+                    new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
+                    new KeyValuePair<string, string>("startDate", startDate),
+                    new KeyValuePair<string,string>("endDate",endDate)
+                 });
+            }
+            else
+            {
+                content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
+                });
+            }
 
             var resp = await client.PostAsync("",content);
 
@@ -40,15 +53,52 @@ namespace EMRedemption.Controllers
 
             var objects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
 
-            var models = objects.redeemDetails.Select(r => new RedemptionViewModel
+            int i = 0;
+            //var models = objects.redeemDetails.Select(r => {
+            //    i++;
+            //    return new RedemptionViewModel
+            //    {
+            //        LineNo = i,
+            //        TransactionID = r.TransactionID,
+            //        RetailerName = r.retailerName,
+            //        RetailerStoreName = r.retailerStoreName,
+            //        RetailerEmailAddress = r.retailerEmailAddress,
+            //        RetailerPhoneNumber = r.retailerPhoneNumber,
+            //    };
+            //});
+            var models = new List<RedemptionViewModel>();
+            int k = 0;
+            foreach (var master in objects.redeemDetails)
             {
-                TransactionID = r.TransactionID,
-                RetailerName = r.retailerName,
-                RetailerStoreName = r.retailerStoreName,
-                RetailerEmailAddress = r.retailerEmailAddress,
-                RetailerPhoneNumber = r.retailerPhoneNumber
-            });
 
+                var redemption = new RedemptionViewModel();
+                k++;
+                redemption.LineNo = k;
+                redemption.TransactionID = master.TransactionID;
+                redemption.RetailerName = master.retailerName;
+                redemption.RetailerStoreName = master.retailerStoreName;
+                redemption.RetailerEmailAddress = master.retailerEmailAddress;
+                redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
+                redemption.RedeemDateTime = master.RedeemDateTime;
+
+                var redemptionItems = new List<RedemptionItemViewModel>();
+
+                int j = 0;
+                foreach (var detail in master.productDetails)
+                {
+                    j++;
+                    var item = new RedemptionItemViewModel();
+                    item.LineNo = j;
+                    item.RewardCode = detail.productCode;
+                    item.Points = detail.points;
+                    item.Quantity = detail.quantity;
+                    redemptionItems.Add(item);
+                }
+
+                redemption.RedemptionItems.AddRange(redemptionItems);
+
+                models.Add(redemption);
+            }
             //var connStr = ConfigurationManager.AppSettings["maria_connection"];
             //var connStr = "server=exxon-db-server.mariadb.database.azure.com; Port=3306; Database=EMRedemptionDb; Uid=kasem@exxon-db-server; Pwd=abc123!@#;";
             //using (MySqlConnection conn = new MySqlConnection(connStr))

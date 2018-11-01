@@ -31,8 +31,13 @@ namespace EMRedemption.Models.RedemptionViewModels
         public string RetailerPhoneNumber { get; set; }
 
         [DisplayName("Redeem DateTime")]
-        public string RedeemDateTime { get; set; }
+        public DateTime RedeemDateTime { get; set; }
 
         public List<RedemptionItemViewModel> RedemptionItems { get; set; }
+
+        public RedemptionViewModel()
+        {
+            RedemptionItems = new List<RedemptionItemViewModel>();
+        }
     }
 }
