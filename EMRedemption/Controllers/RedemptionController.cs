@@ -115,7 +115,7 @@ namespace EMRedemption.Controllers
             //    //conn.Close();
             //}
 
-            return View(models);
+            return View(models.OrderBy(m=> m.RedeemDateTime).ThenBy(m=> m.TransactionID));
         }
     }
 }

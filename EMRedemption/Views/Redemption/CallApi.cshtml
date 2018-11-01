@@ -21,7 +21,7 @@
 <hr />
 <table class="table">
     <thead>
-        <tr>
+        <tr class="active">
             <th>
                 @Html.DisplayNameFor(model => model.LineNo)
             </th>
@@ -46,7 +46,7 @@
             <th></th>
         </tr>
     </thead>
-    <tbody>
+    <tbody class="table-hover">
         @foreach (var item in Model)
         {
             <tr class="danger">
@@ -71,30 +71,37 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.RedeemDateTime)
                 </td>
+                <td></td>
+            </tr>
+            <tr></tr>
+            <tr>
+                <td></td>
+                <td>#</td>
+                <td>Reword Code</td>
+                <td>Points</td>
+                <td>Quantity</td>
+                <td></td>
             </tr>
             <tr>
-            <tr></tr>
             @foreach (var detail in item.RedemptionItems)
             {
-            <tr class="warning">
+            <tr class="table-condensed">
                 <td></td>
                 <td>
-                    <b>@Html.DisplayFor(modelItem => detail.LineNo)</b>
+                    @Html.DisplayFor(modelItem => detail.LineNo)
                 </td>
                 <td>
-                    @Html.DisplayNameFor(modelItem => detail.RewardCode):
-                    <b>@Html.DisplayFor(modelItem => detail.RewardCode)</b>
+                    @Html.DisplayFor(modelItem => detail.RewardCode)
                 </td>
                 <td>
-                    @Html.DisplayNameFor(modelItem => detail.Points):
-                    <b>@Html.DisplayFor(modelItem => detail.Points)</b>
+                    @Html.DisplayFor(modelItem => detail.Points)
                 </td>
                 <td>
-                    @Html.DisplayNameFor(modelItem => detail.Quantity):
-                    <b>@Html.DisplayFor(modelItem => detail.Quantity)</b>
+                    @Html.DisplayFor(modelItem => detail.Quantity)
                 </td>
+                <td></td>
             </tr>
-        }
+            }
             </tr>
         }
         </tbody>
