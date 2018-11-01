@@ -8,7 +8,7 @@ namespace EMRedemption.Entities
 {
     public class Redemption:BaseEntity
     {
-        public int TrasactionID { get; set; }
+        public string TrasactionID { get; set; }
         public string RetailerName { get; set; }
         public string RetailerStoreName { get; set; }
         public string RetailerEmailAddress { get; set; }
@@ -16,20 +16,14 @@ namespace EMRedemption.Entities
         public RedemptionStatus Status { get; set; }
         public DateTime RedeemDateTime { get; set; }
         public DateTime FatchDateTime { get; set; }
+        public virtual List<RedemptionItem> RedemptionItems { get; set; }
 
         public Redemption()
         {
+            RedemptionItems = new List<RedemptionItem>();
             Status = RedemptionStatus.New;
         }
-
-        public Redemption(DateTime redeemDateTime,string retialerName,string email,DateTime fetchTime):this()
-        {
-            RetailerEmailAddress = email;
-            FatchDateTime = fetchTime;
-            RetailerName = retialerName;
-            RedeemDateTime = redeemDateTime;
-        }
-        
+  
         public void SetAsProcessStock()
         {
             Status = RedemptionStatus.ProcessStock;

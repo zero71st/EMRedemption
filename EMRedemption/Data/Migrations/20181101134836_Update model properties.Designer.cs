@@ -11,9 +11,10 @@ using System;
 namespace EMRedemption.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20181101134836_Update model properties")]
+    partial class Updatemodelproperties
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,7 +39,7 @@ namespace EMRedemption.Data.Migrations
 
                     b.Property<int>("Status");
 
-                    b.Property<string>("TransactionID");
+                    b.Property<string>("TrasactionID");
 
                     b.HasKey("Id");
 

@@ -12,6 +12,7 @@ namespace EMRedemption.Entities
         public string SerialNo { get; set; }
         public string Description { get; set; }
         public string RewardType { get; set; }
+        public int Quantity { get; set; }
         public DateTime ExpireDate { get; set; }
         public string AddBy { get; set; }
         public DateTime AddDate { get; set; }

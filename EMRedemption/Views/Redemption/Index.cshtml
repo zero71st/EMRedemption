@@ -52,13 +52,22 @@
                 #
             </th>
             <th>
+                @Html.DisplayNameFor(model => model.TransactionID)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RetailerName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RetailerStoreName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RetailerPhoneNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RetailerEmailAddress)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.RedeemDateTime)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DealerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
             </th>
             <th></th>
         </tr>
@@ -66,23 +75,33 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.LineNo)
-                </td>
-               
-                <td>
-                    @Html.DisplayFor(modelItem => item.DealerName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-               
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success btn-sm">
-                        <span class="glyphicon glyphicon-send"></span>
-                    </a>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.LineNo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionID)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerStoreName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RedeemDateTime)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-success btn-sm">
+                    <span class="glyphicon glyphicon-send"></span>
+                </a>
+        </tr>
         }
     </tbody>
 </table>
