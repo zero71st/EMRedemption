@@ -110,6 +110,7 @@ namespace EMRedemption.Controllers
 
             //var connStr = ConfigurationManager.AppSettings["maria_connection"];
             var connStr = "server=pongsatornoffice.cqttbtdz5ct1.ap-southeast-1.rds.amazonaws.com; Port=3306; Database=l3oatoffice; Uid=thel3oat0142; Pwd=thel3oat;convert zero datetime=True;";
+            
             using (MySqlConnection conn = new MySqlConnection(connStr))
             {
                 foreach (var model in models)
@@ -117,15 +118,24 @@ namespace EMRedemption.Controllers
                     conn.Open();
 
                     string sql = String.Format("INSERT INTO Redemptions(TrasactionID,RetailerName,RetailerStoreName,RetailerEmailAddress,RetailerPhoneNumber,RedeemDateTime) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')", model.TransactionID,model.RetailerName,model.RetailerStoreName,model.RetailerEmailAddress,model.RetailerPhoneNumber,model.RedeemDateTime.ToString("yyyy-MM-dd H:mm:ss"));
+
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
-                        var rows = cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+
+                        foreach (var item in model.RedemptionItems)
+                        {
+                            sql = String.Format("INSERT INTO RedemptionItems(RedemptionId,RewardCode,Points,Quantity) VALUES ({0},'{1}',{2},{3})",cmd.LastInsertedId,item.RewardCode,item.Points,item.Quantity);
+
+                            using (MySqlCommand cmd2 = new MySqlCommand(sql, conn))
+                            {
+                                cmd2.ExecuteNonQuery();
+                            }
+                        }
                     }
                     conn.Close();
                 }
             }
-
-
             return View(models.OrderBy(m=> m.RedeemDateTime).ThenBy(m=> m.TransactionID));
         }
     }
