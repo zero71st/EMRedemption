@@ -33,7 +33,6 @@ namespace EMRedemption.Controllers
 
         public async Task<IActionResult> CallApi(string startDate, string endDate)
         {
-            
             var client = new HttpClient();
             client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
 
@@ -110,14 +109,14 @@ namespace EMRedemption.Controllers
             }
 
             //var connStr = ConfigurationManager.AppSettings["maria_connection"];
-            var connStr = "server=pongsatornoffice.cqttbtdz5ct1.ap-southeast-1.rds.amazonaws.com; Port=3306; Database=l3oatoffice; Uid=thel3oat0142; Pwd=thel3oat;";
+            var connStr = "server=pongsatornoffice.cqttbtdz5ct1.ap-southeast-1.rds.amazonaws.com; Port=3306; Database=l3oatoffice; Uid=thel3oat0142; Pwd=thel3oat;convert zero datetime=True;";
             using (MySqlConnection conn = new MySqlConnection(connStr))
             {
                 foreach (var model in models)
                 {
                     conn.Open();
 
-                    string sql = String.Format("INSERT INTO Redemptions(TrasactionID,RetailerName,RetailerStoreName,RetailerEmailAddress,RetailerPhoneNumber,RedeemDateTime) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')", model.TransactionID,model.RetailerName,model.RetailerStoreName,model.RetailerEmailAddress,model.RetailerPhoneNumber,model.RedeemDateTime);
+                    string sql = String.Format("INSERT INTO Redemptions(TrasactionID,RetailerName,RetailerStoreName,RetailerEmailAddress,RetailerPhoneNumber,RedeemDateTime) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')", model.TransactionID,model.RetailerName,model.RetailerStoreName,model.RetailerEmailAddress,model.RetailerPhoneNumber,model.RedeemDateTime.ToString("yyyy-MM-dd H:mm:ss"));
                     using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                     {
                         var rows = cmd.ExecuteNonQuery();
