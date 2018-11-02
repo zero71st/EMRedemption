@@ -8,7 +8,7 @@ namespace EMRedemption.Entities
 {
     public class Redemption:BaseEntity
     {
-        public string TrasactionID { get; set; }
+        public string TransactionID { get; set; }
         public string RetailerName { get; set; }
         public string RetailerStoreName { get; set; }
         public string RetailerEmailAddress { get; set; }

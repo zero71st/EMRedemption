@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using EMRedemption.Models.RedemptionViewModels;
-using MySql.Data;
 using System.Net.Http;
 using Newtonsoft.Json;
 using MySql.Data.MySqlClient;
 using EMRedemption.Models.Jsons;
 using EMRedemption.Data;
+using System.Transactions;
+using Microsoft.Extensions.Configuration;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -19,9 +20,12 @@ namespace EMRedemption.Controllers
     {
         private readonly ApplicationDbContext _db;
 
-        public RedemptionController(ApplicationDbContext db)
+        public RedemptionController(ApplicationDbContext db,
+                                    IConfiguration configuraton)
         {
             _db = db;
+
+            Configuration = configuraton;
         }
 
         // GET: /<controller>/
@@ -30,6 +34,8 @@ namespace EMRedemption.Controllers
             var models = _db.Redemptions.ToList().Select(r => new RedemptionViewModel(r));
             return View(models);
         }
+
+        public IConfiguration Configuration { get; }
 
         public async Task<IActionResult> CallApi(string startDate, string endDate)
         {
@@ -55,25 +61,12 @@ namespace EMRedemption.Controllers
                 });
             }
 
-            var resp = await client.PostAsync("",content);
+            var resp = await client.PostAsync("", content);
 
             var jsonString = await resp.Content.ReadAsStringAsync();
 
             var objects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
 
-            int i = 0;
-            //var models = objects.redeemDetails.Select(r => {
-            //    i++;
-            //    return new RedemptionViewModel
-            //    {
-            //        LineNo = i,
-            //        TransactionID = r.TransactionID,
-            //        RetailerName = r.retailerName,
-            //        RetailerStoreName = r.retailerStoreName,
-            //        RetailerEmailAddress = r.retailerEmailAddress,
-            //        RetailerPhoneNumber = r.retailerPhoneNumber,
-            //    };
-            //});
             var models = new List<RedemptionViewModel>();
             int k = 0;
             foreach (var master in objects.redeemDetails)
@@ -98,6 +91,7 @@ namespace EMRedemption.Controllers
                     var item = new RedemptionItemViewModel();
                     item.LineNo = j;
                     item.RewardCode = detail.productCode;
+                    item.RewardName = detail.productName;
                     item.Points = detail.points;
                     item.Quantity = detail.quantity;
                     redemptionItems.Add(item);
@@ -108,35 +102,59 @@ namespace EMRedemption.Controllers
                 models.Add(redemption);
             }
 
-            //var connStr = ConfigurationManager.AppSettings["maria_connection"];
-            var connStr = "server=pongsatornoffice.cqttbtdz5ct1.ap-southeast-1.rds.amazonaws.com; Port=3306; Database=l3oatoffice; Uid=thel3oat0142; Pwd=thel3oat;convert zero datetime=True;";
-            
-            using (MySqlConnection conn = new MySqlConnection(connStr))
+            try
             {
-                foreach (var model in models)
+                using (TransactionScope scope = new TransactionScope())
                 {
-                    conn.Open();
-
-                    string sql = String.Format("INSERT INTO Redemptions(TrasactionID,RetailerName,RetailerStoreName,RetailerEmailAddress,RetailerPhoneNumber,RedeemDateTime) VALUES ('{0}','{1}','{2}','{3}','{4}','{5}')", model.TransactionID,model.RetailerName,model.RetailerStoreName,model.RetailerEmailAddress,model.RetailerPhoneNumber,model.RedeemDateTime.ToString("yyyy-MM-dd H:mm:ss"));
-
-                    using (MySqlCommand cmd = new MySqlCommand(sql, conn))
+                    using (MySqlConnection conn = new MySqlConnection(Configuration.GetConnectionString("DefaultConnection")))
                     {
-                        cmd.ExecuteNonQuery();
-
-                        foreach (var item in model.RedemptionItems)
+                        foreach (var model in models)
                         {
-                            sql = String.Format("INSERT INTO RedemptionItems(RedemptionId,RewardCode,Points,Quantity) VALUES ({0},'{1}',{2},{3})",cmd.LastInsertedId,item.RewardCode,item.Points,item.Quantity);
+                            conn.Open();
 
-                            using (MySqlCommand cmd2 = new MySqlCommand(sql, conn))
+                            string sql = "INSERT INTO Redemptions(TransactionID,RetailerName,RetailerStoreName,RetailerEmailAddress,RetailerPhoneNumber,RedeemDateTime,FetchDateTime)" +
+                                                         "VALUES (@transactionID,@retialerName,@retialerStoreName,@retailerEmailAddress,@retailerPhoneNumber,@redeemDateTime,@fetchDatetime)";
+
+                            using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                             {
-                                cmd2.ExecuteNonQuery();
+                                cmd.Parameters.AddWithValue("@transactionID", model.TransactionID);
+                                cmd.Parameters.AddWithValue("@retialerName", model.RetailerName);
+                                cmd.Parameters.AddWithValue("@retialerStoreName", model.RetailerStoreName);
+                                cmd.Parameters.AddWithValue("@retailerEmailAddress", model.RetailerEmailAddress);
+                                cmd.Parameters.AddWithValue("@retailerPhoneNumber", model.RetailerPhoneNumber);
+                                cmd.Parameters.AddWithValue("@redeemDateTime", model.RedeemDateTime.ToString("yyyy-MM-dd H:mm:ss"));
+                                cmd.Parameters.AddWithValue("@fetchDateTime", DateTime.Now.ToString("yyyy-MM-dd H:mm:ss"));
+
+                                cmd.ExecuteNonQuery();
+
+                                foreach (var item in model.RedemptionItems)
+                                {
+                                    sql = "INSERT INTO RedemptionItems(RedemptionId,RewardCode,RewardName,Points,Quantity) VALUES (@redemptionID,@rewardCode,@rewardName,@points,@quantity)";
+                                    using (MySqlCommand cmd2 = new MySqlCommand(sql, conn))
+                                    {
+                                        cmd2.Parameters.AddWithValue("@redemptionID", cmd.LastInsertedId);
+                                        cmd2.Parameters.AddWithValue("@rewardCode", item.RewardCode);
+                                        cmd2.Parameters.AddWithValue("@rewardName", item.RewardName);
+                                        cmd2.Parameters.AddWithValue("@points", item.Points);
+                                        cmd2.Parameters.AddWithValue("@quantity", item.Quantity);
+
+                                        cmd2.ExecuteNonQuery();
+                                    }
+                                }
                             }
+                            conn.Close();
                         }
                     }
-                    conn.Close();
+
+                    scope.Complete();
                 }
             }
-            return View(models.OrderBy(m=> m.RedeemDateTime).ThenBy(m=> m.TransactionID));
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return View(models.OrderBy(m => m.RedeemDateTime).ThenBy(m => m.TransactionID));
         }
     }
 }

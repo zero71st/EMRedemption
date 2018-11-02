@@ -19,82 +19,6 @@ namespace EMRedemption.Data.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "2.0.3-rtm-10026");
 
-            modelBuilder.Entity("EMRedemption.Entities.Redemption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("FatchDateTime");
-
-                    b.Property<DateTime>("RedeemDateTime");
-
-                    b.Property<string>("RetailerEmailAddress");
-
-                    b.Property<string>("RetailerName");
-
-                    b.Property<string>("RetailerPhoneNumber");
-
-                    b.Property<string>("RetailerStoreName");
-
-                    b.Property<int>("Status");
-
-                    b.Property<string>("TransactionID");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Redemptions");
-                });
-
-            modelBuilder.Entity("EMRedemption.Entities.RedemptionItem", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("Points");
-
-                    b.Property<int>("Quantity");
-
-                    b.Property<int?>("RedemptionId");
-
-                    b.Property<string>("RewardCode");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RedemptionId");
-
-                    b.ToTable("RedemptionItems");
-                });
-
-            modelBuilder.Entity("EMRedemption.Entities.Reward", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("AddBy");
-
-                    b.Property<DateTime>("AddDate");
-
-                    b.Property<string>("Code");
-
-                    b.Property<string>("Description");
-
-                    b.Property<DateTime>("ExpireDate");
-
-                    b.Property<int>("Quantity");
-
-                    b.Property<int?>("RedemptionItemId");
-
-                    b.Property<string>("RewardType");
-
-                    b.Property<string>("SerialNo");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RedemptionItemId");
-
-                    b.ToTable("Coupons");
-                });
-
             modelBuilder.Entity("EMRedemption.Models.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -252,19 +176,6 @@ namespace EMRedemption.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
-            modelBuilder.Entity("EMRedemption.Entities.RedemptionItem", b =>
-                {
-                    b.HasOne("EMRedemption.Entities.Redemption")
-                        .WithMany("RedemptionItems")
-                        .HasForeignKey("RedemptionId");
-                });
-
-            modelBuilder.Entity("EMRedemption.Entities.Reward", b =>
-                {
-                    b.HasOne("EMRedemption.Entities.RedemptionItem", "RedemptionItem")
-                        .WithMany("Rewards")
-                        .HasForeignKey("RedemptionItemId");
-                });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {

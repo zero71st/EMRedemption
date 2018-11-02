@@ -16,6 +16,9 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("Code")]
         public string RewardCode {get;set;}
 
+        [DisplayName("Code")]
+        public string RewardName { get; set; }
+
         [DisplayName("Points")]
         public int Points { get; set; }
 

@@ -31,8 +31,11 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("Phone Number")]
         public string RetailerPhoneNumber { get; set; }
 
-        [DisplayName("Redeem DateTime")]
+        [DisplayName("Redeem Date Time")]
         public DateTime RedeemDateTime { get; set; }
+
+        [DisplayName("Fetch Date Time")]
+        public DateTime FetchDateTime { get; set; }
 
         public List<RedemptionItemViewModel> RedemptionItems { get; set; }
 
@@ -42,12 +45,13 @@ namespace EMRedemption.Models.RedemptionViewModels
         }
         public RedemptionViewModel(Redemption redemption):this()
         {
-            TransactionID = redemption.TrasactionID;
+            TransactionID = redemption.TransactionID;
             RetailerName = redemption.RetailerName;
             RetailerStoreName = redemption.RetailerStoreName;
             RetailerPhoneNumber = redemption.RetailerPhoneNumber;
             RetailerEmailAddress = redemption.RetailerEmailAddress;
             RedeemDateTime = redemption.RedeemDateTime;
+            FetchDateTime = redemption.FatchDateTime;
             int i = 0;
             RedemptionItems.AddRange(redemption.RedemptionItems.Select(ri =>
             {
@@ -57,6 +61,7 @@ namespace EMRedemption.Models.RedemptionViewModels
                     LineNo = i,
                     Id = ri.Id,
                     RewardCode = ri.RewardCode,
+                    RewardName = ri.RewardName,
                     Points = ri.Points,
                     Quantity = ri.Quantity,
                 };

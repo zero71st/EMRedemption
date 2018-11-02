@@ -8,6 +8,7 @@ namespace EMRedemption.Entities
     public class RedemptionItem:BaseEntity
     {
         public string RewardCode { get; set; }
+        public string RewardName { get; set; }
         public int Quantity { get; set; }
         public int Points { get; set; }
 
