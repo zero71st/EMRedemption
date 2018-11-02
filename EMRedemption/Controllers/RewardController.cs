@@ -31,7 +31,7 @@ namespace EMRedemption.Controllers
         [Authorize]
         public ActionResult Index(string search)
         {
-            var rewards = _db.Coupons.AsEnumerable();
+            var rewards = _db.Rewards.AsEnumerable();
 
             if (!String.IsNullOrEmpty(search))
             {
@@ -96,7 +96,7 @@ namespace EMRedemption.Controllers
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var coupon = _db.Coupons.Find(id);
+            var coupon = _db.Rewards.Find(id);
             if (coupon == null)
                 return NotFound();
 
@@ -114,7 +114,7 @@ namespace EMRedemption.Controllers
 
             try
             {
-                var reward = _db.Coupons.Find(id);
+                var reward = _db.Rewards.Find(id);
                 if (reward != null)
                 {
                     reward.Code = model.Code;

@@ -37,6 +37,64 @@ namespace EMRedemption.Controllers
 
         public IConfiguration Configuration { get; }
 
+        [HttpGet]
+        public async Task<IActionResult> Retrieve(string retriveDate)
+        {
+            var client = new HttpClient();
+            client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
+
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
+                new KeyValuePair<string, string>("startDate", "2018-10-30 09:05 PM"),
+                new KeyValuePair<string,string>("endDate","2018-10-30 10:40 PM")
+            });
+
+            var resp = await client.PostAsync("", content);
+
+            var jsonString = await resp.Content.ReadAsStringAsync();
+
+            var objects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
+
+            var models = new List<RedemptionViewModel>();
+
+            int k = 0;
+            foreach (var master in objects.redeemDetails)
+            {
+
+                var redemption = new RedemptionViewModel();
+                k++;
+                redemption.LineNo = k;
+                redemption.TransactionID = master.TransactionID;
+                redemption.RetailerName = master.retailerName;
+                redemption.RetailerStoreName = master.retailerStoreName;
+                redemption.RetailerEmailAddress = master.retailerEmailAddress;
+                redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
+                redemption.RedeemDateTime = master.RedeemDateTime;
+
+                var redemptionItems = new List<RedemptionItemViewModel>();
+
+                int j = 0;
+                foreach (var detail in master.productDetails)
+                {
+                    j++;
+                    var item = new RedemptionItemViewModel();
+                    item.LineNo = j;
+                    item.RewardCode = detail.productCode;
+                    item.RewardName = detail.productName;
+                    item.Points = detail.points;
+                    item.Quantity = detail.quantity;
+                    redemptionItems.Add(item);
+                }
+
+                redemption.RedemptionItems.AddRange(redemptionItems);
+
+                models.Add(redemption);
+            }
+
+            return View(models);
+        }
+
         public async Task<IActionResult> CallApi(string startDate, string endDate)
         {
             var client = new HttpClient();
@@ -113,7 +171,7 @@ namespace EMRedemption.Controllers
                             conn.Open();
 
                             string sql = "INSERT INTO Redemptions(TransactionID,RetailerName,RetailerStoreName,RetailerEmailAddress,RetailerPhoneNumber,RedeemDateTime,FetchDateTime)" +
-                                                         "VALUES (@transactionID,@retialerName,@retialerStoreName,@retailerEmailAddress,@retailerPhoneNumber,@redeemDateTime,@fetchDatetime)";
+                                                         "VALUES (@transactionID,@retialerName,@retialerStoreName,@retailerEmailAddress,@retailerPhoneNumber,@redeemDateTime,@fetchDateTime)";
 
                             using (MySqlCommand cmd = new MySqlCommand(sql, conn))
                             {

@@ -51,7 +51,7 @@ namespace EMRedemption.Models.RedemptionViewModels
             RetailerPhoneNumber = redemption.RetailerPhoneNumber;
             RetailerEmailAddress = redemption.RetailerEmailAddress;
             RedeemDateTime = redemption.RedeemDateTime;
-            FetchDateTime = redemption.FatchDateTime;
+            FetchDateTime = redemption.FetchDateTime;
             int i = 0;
             RedemptionItems.AddRange(redemption.RedemptionItems.Select(ri =>
             {

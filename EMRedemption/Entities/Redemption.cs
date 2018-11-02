@@ -15,7 +15,7 @@ namespace EMRedemption.Entities
         public string RetailerPhoneNumber { get; set; }
         public RedemptionStatus Status { get; set; }
         public DateTime RedeemDateTime { get; set; }
-        public DateTime FatchDateTime { get; set; }
+        public DateTime FetchDateTime { get; set; }
         public virtual List<RedemptionItem> RedemptionItems { get; set; }
 
         public Redemption()

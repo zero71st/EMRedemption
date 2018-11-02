@@ -13,7 +13,7 @@ namespace EMRedemption.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<Reward> Coupons { get; set; }
+        public DbSet<Reward> Rewards { get; set; }
         public DbSet<Redemption> Redemptions { get; set; }
         public DbSet<RedemptionItem> RedemptionItems { get; set; }
 
@@ -30,5 +30,7 @@ namespace EMRedemption.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
+
+        public DbSet<EMRedemption.Models.RedemptionViewModels.RedemptionViewModel> RedemptionViewModel { get; set; }
     }
 }
