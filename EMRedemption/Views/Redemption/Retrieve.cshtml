@@ -1,19 +1,25 @@
-﻿@model IEnumerable<EMRedemption.Models.RedemptionViewModels.RedemptionViewModel>
+﻿@model IEnumerable<RedemptionViewModel>
 @{
     ViewData["Title"] = "Retrieve";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h2>Load Daily Retailer Redemptions</h2>
+<h2>Load Daily Redemptions</h2>
 <hr/>
-<form asp-controller="Redemption" asp-action="Retrive" method="get" class="form-inline">
+<form asp-controller="Redemption" asp-action="Retrieve" method="get" class="form-inline">
     <p>
-        <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span>Save</button>
+        @*<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span>Save</button>*@
     </p>
 
+    <label>Redeem Date:</label>
     <div class="form-group">
         <label class="sr-only" for="exampleInputEmail3">Search code</label>
-        <input name="startDate" value="@DateTime.Today.AddDays(-1)" type="text" class="form-control" placeholder="Start Date">
+        <input class="form-control" name="redeemDate" type="date" value="@ViewBag.RedeemDate" />
     </div>
+    
+    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span>Load</button>
+    <p class="col-sm-offset-1">
+        <small>During time: 00:00 - 23:59</small>
+    </p>
 </form>
 
 <hr />

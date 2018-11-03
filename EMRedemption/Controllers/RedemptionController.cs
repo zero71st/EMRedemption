@@ -37,17 +37,31 @@ namespace EMRedemption.Controllers
 
         public IConfiguration Configuration { get; }
 
-        [HttpGet]
-        public async Task<IActionResult> Retrieve(string retriveDate)
+        public IActionResult ConfirmToStore(string redeemDate)
         {
+            ViewBag.RedeemDate = redeemDate;
+
+            return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Retrieve(string redeemDate)
+        {
+            ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");
+
             var client = new HttpClient();
             client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
+
+            if (String.IsNullOrEmpty(redeemDate))
+                redeemDate = ViewBag.RedeemDate;
+            else
+                ViewBag.RedeemDate = redeemDate;
 
             var content = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
-                new KeyValuePair<string, string>("startDate", "2018-10-30 09:05 PM"),
-                new KeyValuePair<string,string>("endDate","2018-10-30 10:40 PM")
+                new KeyValuePair<string, string>("startDate", redeemDate+" 12:00 AM"),
+                new KeyValuePair<string,string>("endDate",redeemDate+" 11:59 PM")
             });
 
             var resp = await client.PostAsync("", content);
@@ -58,10 +72,15 @@ namespace EMRedemption.Controllers
 
             var models = new List<RedemptionViewModel>();
 
+            if (objects.redeemDetails == null)
+            {
+                return View(models);
+            }
+
             int k = 0;
+           
             foreach (var master in objects.redeemDetails)
             {
-
                 var redemption = new RedemptionViewModel();
                 k++;
                 redemption.LineNo = k;

@@ -28,7 +28,7 @@ namespace EMRedemption.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public ActionResult Index(string search)
         {
             var rewards = _db.Rewards.AsEnumerable();
