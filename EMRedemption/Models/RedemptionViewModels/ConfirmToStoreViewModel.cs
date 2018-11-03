@@ -13,15 +13,19 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("Transaction(s)")]
         public int Quantity { get; set; }
 
+        public bool IsSaveToDatabase { get; set; }
+
+
         public ConfirmToStoreViewModel()
         {
 
         }
 
-        public ConfirmToStoreViewModel(string redeemDate,int quantity)
+        public ConfirmToStoreViewModel(string redeemDate,int quantity,bool isSaveToDatabase)
         {
             RedeemDate = redeemDate;
             Quantity = quantity;
+            IsSaveToDatabase = isSaveToDatabase;
         }
     }
 }

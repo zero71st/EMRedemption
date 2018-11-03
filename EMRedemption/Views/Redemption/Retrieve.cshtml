@@ -5,38 +5,50 @@
 }
 <h2>Load Daily Redemptions</h2>
 <hr />
+<p>
+    @if (Model.Count() > 0)
+    {
+        var parms = new Dictionary<string, string>
+    {
+        {"redeemDate",ViewBag.RedeemDate},
+        {"quantity",ViewBag.Quantity},
+    };
+
+        if (!ViewBag.IsSaveToDatabase)
+        {
+            <a class="btn btn-default" asp-route="confirmToStore" asp-all-route-data="parms">
+                <span class="glyphicon glyphicon-floppy-save">Save</span>
+            </a>
+        }
+        else
+        {
+        <p>
+            <div class="alert alert-danger">Redemptions were already saved into database!</div>
+        </p>
+        }
+    }
+</p>
 <form asp-controller="Redemption" asp-action="Retrieve" method="get" class="form-inline">
-    <label>Redeem Date:</label>
     <div class="form-group">
         <label class="sr-only" for="exampleInputEmail3">Search code</label>
         <input class="form-control" name="redeemDate" type="date" value="@ViewBag.RedeemDate" />
     </div>
 
     <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span>Load</button>
-    <p class="col-sm-offset-1">
-        <small>During time: 00:00 - 23:59 (24 hrs.)</small>
+    <p>
+        <small>Redeem Date: <b>@ViewBag.RedeemDate</b> during time: <b>00:00 - 23:59</b> (24 hrs.)</small>
     </p>
 </form>
 
+<hr />
 @if (Model.Count() == 0)
 {
     <p>
-        <div class="alert alert-warning" role="alert">Data not found!</div>
+        <div class="alert alert-warning" role="alert">Not found redemptions!</div>
     </p>
 }
 else
 {
-    <p class="col-md-offset-11">
-        @{
-         var items = new Dictionary<string, string>
-         {
-             {"redeemDate",ViewBag.RedeemDate},
-             {"quantity","100" }
-         };
-        }
-        <a class="btn btn-primary" asp-route="confirmToStore" asp-all-route-data="items">Save</a>
-    </p>
-
     <table class="table">
         <thead>
             <tr class="active">

@@ -12,6 +12,7 @@ using EMRedemption.Data;
 using System.Transactions;
 using Microsoft.Extensions.Configuration;
 using EMRedemption.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -29,7 +30,7 @@ namespace EMRedemption.Controllers
             Configuration = configuraton;
         }
 
-        // GET: /<controller>/
+        [Authorize]
         public IActionResult Index()
         {
             int i = 0;
@@ -40,15 +41,17 @@ namespace EMRedemption.Controllers
         public IConfiguration Configuration { get; }
 
         [HttpGet]
+        [Authorize]
         [Route("/Redemption/ConfirmToStore", Name = "confirmToStore")]
-        public IActionResult ConfirmToStore(string redeemDate, int quantity)
+        public IActionResult ConfirmToStore(string redeemDate, int quantity,bool isSaveToDatabase)
         {
-            var model = new ConfirmToStoreViewModel(redeemDate, quantity);
+            var model = new ConfirmToStoreViewModel(redeemDate, quantity,isSaveToDatabase);
 
             return View(model);
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> ConfirmToStore([Bind("RedeemDate")]ConfirmToStoreViewModel model)
         {
             try
@@ -63,6 +66,37 @@ namespace EMRedemption.Controllers
             {
                 throw;
             }
+        }
+
+
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> Retrieve(string redeemDate)
+        {
+            ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");  
+
+            if (String.IsNullOrEmpty(redeemDate))
+                redeemDate = ViewBag.RedeemDate;
+            else
+                ViewBag.RedeemDate = redeemDate;
+
+            var redemptions = await GetRedemptionsAsync(redeemDate);
+
+            ViewBag.Quantity = redemptions.Count.ToString();
+
+            string[] transIds = redemptions.Select(r => r.TransactionID).ToArray();
+
+            var redempts = _db.Redemptions
+                              .Where(r => transIds.Contains(r.TransactionID))
+                              .Select(r => r.Id)
+                              .ToList();
+
+            ViewBag.IsSaveToDatabase = redempts.Count > 0;
+
+            int j = 0;
+            var models = redemptions.Select(r => { j++; return new RedemptionViewModel(j, r); });
+
+            return View(models);
         }
 
         private async Task<List<Redemption>> GetRedemptionsAsync(string redeemDate)
@@ -109,24 +143,6 @@ namespace EMRedemption.Controllers
             }
 
             return redemptions;
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Retrieve(string redeemDate)
-        {
-            ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");
-
-            if (String.IsNullOrEmpty(redeemDate))
-                redeemDate = ViewBag.RedeemDate;
-            else
-                ViewBag.RedeemDate = redeemDate;
-
-            var redemptions = await GetRedemptionsAsync(redeemDate);
-
-            int i = 0;
-            var models = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
-
-            return View(models);
         }
 
         public async Task<IActionResult> CallApi(string startDate, string endDate)
