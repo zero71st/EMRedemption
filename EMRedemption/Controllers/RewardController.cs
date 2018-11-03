@@ -96,11 +96,11 @@ namespace EMRedemption.Controllers
         [HttpGet]
         public ActionResult Edit(int id)
         {
-            var coupon = _db.Rewards.Find(id);
-            if (coupon == null)
+            var reward = _db.Rewards.Find(id);
+            if (reward == null)
                 return NotFound();
 
-            RewardViewModel model = new RewardViewModel(coupon);
+            RewardViewModel model = new RewardViewModel(reward);
 
             return View(model);
         }

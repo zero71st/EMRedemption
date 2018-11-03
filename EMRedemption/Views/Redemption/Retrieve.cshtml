@@ -7,7 +7,14 @@
 <hr/>
 <form asp-controller="Redemption" asp-action="Retrieve" method="get" class="form-inline">
     <p>
-        @*<button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-save"></span>Save</button>*@
+        @{ 
+            var items = new Dictionary<string, string>
+            {
+                {"redeemDate",ViewBag.RedeemDate},
+                {"quantity","100" }
+            };
+        }
+        <a class="btn btn-primary" asp-route="confirmToStore" asp-all-route-data="items">Save</a>
     </p>
 
     <label>Redeem Date:</label>

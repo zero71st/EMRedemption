@@ -11,6 +11,7 @@ using EMRedemption.Models.Jsons;
 using EMRedemption.Data;
 using System.Transactions;
 using Microsoft.Extensions.Configuration;
+using EMRedemption.Entities;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,31 +32,45 @@ namespace EMRedemption.Controllers
         // GET: /<controller>/
         public IActionResult Index()
         {
-            var models = _db.Redemptions.ToList().Select(r => new RedemptionViewModel(r));
+            int i = 0;
+            var models = _db.Redemptions.ToList().Select(r => { i++; return new RedemptionViewModel(i,r); });
             return View(models);
         }
 
         public IConfiguration Configuration { get; }
 
-        public IActionResult ConfirmToStore(string redeemDate)
+        [HttpGet]
+        [Route("/Redemption/ConfirmToStore", Name = "confirmToStore")]
+        public IActionResult ConfirmToStore(string redeemDate, int quantity)
         {
-            ViewBag.RedeemDate = redeemDate;
+            var model = new ConfirmToStoreViewModel(redeemDate, quantity);
 
-            return View();
+            return View(model);
         }
 
-        [HttpGet]
-        public async Task<IActionResult> Retrieve(string redeemDate)
+        [HttpPost]
+        public async Task<IActionResult> ConfirmToStore([Bind("RedeemDate")]ConfirmToStoreViewModel model)
         {
-            ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");
+            try
+            {
+                var redemptions = await GetRedemptionsAsync(model.RedeemDate);
+                _db.Redemptions.AddRange(redemptions);
+                _db.SaveChanges();
 
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private async Task<List<Redemption>> GetRedemptionsAsync(string redeemDate)
+        {
+            var redemptions = new List<Redemption>();
             var client = new HttpClient();
-            client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
 
-            if (String.IsNullOrEmpty(redeemDate))
-                redeemDate = ViewBag.RedeemDate;
-            else
-                ViewBag.RedeemDate = redeemDate;
+            client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
 
             var content = new FormUrlEncodedContent(new[]
             {
@@ -70,20 +85,12 @@ namespace EMRedemption.Controllers
 
             var objects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
 
-            var models = new List<RedemptionViewModel>();
-
             if (objects.redeemDetails == null)
-            {
-                return View(models);
-            }
+                return redemptions;
 
-            int k = 0;
-           
             foreach (var master in objects.redeemDetails)
             {
-                var redemption = new RedemptionViewModel();
-                k++;
-                redemption.LineNo = k;
+                var redemption = new Redemption();
                 redemption.TransactionID = master.TransactionID;
                 redemption.RetailerName = master.retailerName;
                 redemption.RetailerStoreName = master.retailerStoreName;
@@ -91,14 +98,11 @@ namespace EMRedemption.Controllers
                 redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
                 redemption.RedeemDateTime = master.RedeemDateTime;
 
-                var redemptionItems = new List<RedemptionItemViewModel>();
+                var redemptionItems = new List<RedemptionItem>();
 
-                int j = 0;
                 foreach (var detail in master.productDetails)
                 {
-                    j++;
-                    var item = new RedemptionItemViewModel();
-                    item.LineNo = j;
+                    var item = new RedemptionItem();
                     item.RewardCode = detail.productCode;
                     item.RewardName = detail.productName;
                     item.Points = detail.points;
@@ -108,8 +112,26 @@ namespace EMRedemption.Controllers
 
                 redemption.RedemptionItems.AddRange(redemptionItems);
 
-                models.Add(redemption);
+                redemptions.Add(redemption);
             }
+
+            return redemptions;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Retrieve(string redeemDate)
+        {
+            ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");
+
+            if (String.IsNullOrEmpty(redeemDate))
+                redeemDate = ViewBag.RedeemDate;
+            else
+                ViewBag.RedeemDate = redeemDate;
+
+            var redemptions = await GetRedemptionsAsync(redeemDate);
+
+            int i = 0;
+            var models = redemptions.Select(r => { i++; return new RedemptionViewModel(i,r); });
 
             return View(models);
         }

@@ -67,5 +67,10 @@ namespace EMRedemption.Models.RedemptionViewModels
                 };
             }));
         }
+
+        public RedemptionViewModel(int lineNo,Redemption redemption):this(redemption)
+        {
+            LineNo = lineNo;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿
+﻿@model ConfirmToStoreViewModel;
+
 @{
     ViewData["Title"] = "ConfirmToStore";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -8,6 +9,19 @@
 <hr />
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ConfirmToStore">
-
+        <div class="jumbotron">
+            <div class="form-group">
+                <label asp-for="RedeemDate" class="control-label"></label>
+                <input asp-for="RedeemDate" readonly="readonly" class="form-control" />
+                @*<span asp-validation-for="SerialNo" class="text-danger"></span>*@
+            </div>
+            <div class="form-group">
+                <label asp-for="Quantity" class="control-label"></label>
+                <input asp-for="Quantity" readonly="readonly" class="form-control" />
+                @*<span asp-validation-for="SerialNo" class="text-danger"></span>*@
+            </div>
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a asp-action="Retrieve"><span class="btn btn-primary">Cancel</span></a>
+        </div>
     </form>
 </div>
