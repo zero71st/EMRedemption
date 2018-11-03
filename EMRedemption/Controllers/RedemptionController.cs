@@ -33,7 +33,7 @@ namespace EMRedemption.Controllers
         public IActionResult Index()
         {
             int i = 0;
-            var models = _db.Redemptions.ToList().Select(r => { i++; return new RedemptionViewModel(i,r); });
+            var models = _db.Redemptions.ToList().Select(r => { i++; return new RedemptionViewModel(i, r); });
             return View(models);
         }
 
@@ -83,12 +83,12 @@ namespace EMRedemption.Controllers
 
             var jsonString = await resp.Content.ReadAsStringAsync();
 
-            var objects = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
+            var jsons = JsonConvert.DeserializeObject<JsonResponse>(jsonString);
 
-            if (objects.redeemDetails == null)
+            if (jsons.redeemDetails == null)
                 return redemptions;
 
-            foreach (var master in objects.redeemDetails)
+            foreach (var master in jsons.redeemDetails)
             {
                 var redemption = new Redemption();
                 redemption.TransactionID = master.TransactionID;
@@ -97,21 +97,14 @@ namespace EMRedemption.Controllers
                 redemption.RetailerEmailAddress = master.retailerEmailAddress;
                 redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
                 redemption.RedeemDateTime = master.RedeemDateTime;
-
-                var redemptionItems = new List<RedemptionItem>();
-
-                foreach (var detail in master.productDetails)
+                redemption.RedemptionItems.AddRange(master.productDetails.Select(i => new RedemptionItem
                 {
-                    var item = new RedemptionItem();
-                    item.RewardCode = detail.productCode;
-                    item.RewardName = detail.productName;
-                    item.Points = detail.points;
-                    item.Quantity = detail.quantity;
-                    redemptionItems.Add(item);
-                }
-
-                redemption.RedemptionItems.AddRange(redemptionItems);
-
+                    RewardCode = i.productCode,
+                    RewardName = i.productName,
+                    Points     = i.points,
+                    Quantity   = i.quantity,
+                }));
+        
                 redemptions.Add(redemption);
             }
 
@@ -131,7 +124,7 @@ namespace EMRedemption.Controllers
             var redemptions = await GetRedemptionsAsync(redeemDate);
 
             int i = 0;
-            var models = redemptions.Select(r => { i++; return new RedemptionViewModel(i,r); });
+            var models = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
 
             return View(models);
         }
