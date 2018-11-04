@@ -11,7 +11,7 @@
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ProcessRewards">
         
-        <h3>Total Redemption(s): 150</h3>
+        <h3>Total Redemption(s):@ViewBag.Total</h3>
         <hr />
         <button type="submit" class="btn btn-primary">Save</button>
         <a asp-action="Index" class="btn btn-primary">Cancel</a>

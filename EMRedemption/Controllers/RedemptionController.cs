@@ -108,8 +108,10 @@ namespace EMRedemption.Controllers
 
         [HttpGet]
         [Authorize]
-        public IActionResult ProcessRewards()
+        [Route("/Redemption/ProcessRewards", Name = "processRewards")]
+        public IActionResult ProcessRewards(int total)
         {
+            ViewBag.Total = total;
             return View();
         }
 

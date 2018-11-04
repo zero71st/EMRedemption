@@ -10,7 +10,7 @@
 @if (Model.Redemptions.Count > 0 && Model.FilterName.Equals(RedemptionProcess.ProcessRewards))
 {
     <p>
-        <a asp-controller="Redemption" asp-action="ProcessRewards" class="btn btn-default">
+        <a asp-route="processRewards" asp-route-total="@Model.Redemptions.Count" class="btn btn-default">
             <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Process Rewards
         </a>
     </p>
@@ -41,7 +41,7 @@ else
     }
     @if (Model.FilterName.Equals(RedemptionProcess.ProcessDone))
     {
-        <small>Redemptions're processed rewards(s): <>@Model.Redemptions.Count</></small>
+        <small>Redemptions're processed rewards(s): <b>@Model.Redemptions.Count</b></small>
     }
     @if (Model.FilterName.Equals(RedemptionProcess.All))
     {
