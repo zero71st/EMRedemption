@@ -102,7 +102,7 @@ namespace EMRedemption.Controllers
             }
             catch (Exception)
             {
-                throw;
+                return View();
             }
         }
 
@@ -111,8 +111,41 @@ namespace EMRedemption.Controllers
         [Route("/Redemption/ProcessRewards", Name = "processRewards")]
         public IActionResult ProcessRewards(int total)
         {
-            ViewBag.Total = total;
-            return View();
+            var itemGroup = _db.RedemptionItems.Include(i=> i.Redemption)
+                                 .Where(r => r.Redemption.Status == RedemptionStatus.New)
+                                 .GroupBy(g=> g.RewardCode)
+                                 .Select(g=> new
+                                 {
+                                     Code = g.FirstOrDefault().RewardCode,
+                                     Name = g.FirstOrDefault().RewardName,
+                                     Quantity = g.Sum(i=> i.Quantity),
+                                 })
+                                 .ToList();
+
+            var model = new ProcessRewardListViewModel();
+
+            var items = new List<ProcessRewardViewModel>();
+
+            foreach (var g in itemGroup)
+            {
+                var item = new ProcessRewardViewModel();
+                item.RewardCode = g.Code;
+                item.RewardName = g.Name;
+                item.Quantity = g.Quantity;
+
+                item.Available = _db.Rewards.Where(rw => rw.RedemptionItemId == null)
+                                            .Where(rw=> rw.Code.Equals(item.RewardCode))
+                                            .Count();
+
+                item.Balance = item.Available - item.Quantity;
+
+                items.Add(item);
+            }
+
+            model.RedemptionTotal = _db.Redemptions.Where(r => r.Status == RedemptionStatus.New).Count();
+            model.ProcessRewards.AddRange(items.OrderBy(i=> i.RewardCode));
+            
+            return View(model);
         }
 
         [HttpPost]
@@ -121,9 +154,33 @@ namespace EMRedemption.Controllers
         {
             try
             {
-                var redemptions = _db.Redemptions.Where(r => r.Status == RedemptionStatus.New).ToList();
+                var redemptions = _db.Redemptions
+                                     .Include(r=> r.RedemptionItems)
+                                     .Where(r => r.Status == RedemptionStatus.New)
+                                     .ToList();
 
-                redemptions.ForEach(r => r.SetAsProcessStock());
+
+                foreach (var redemption in redemptions)
+                {
+                    foreach (var item in redemption.RedemptionItems)
+                    {
+                        var rewards = _db.Rewards
+                                         .Where(rw=> rw.RedemptionItemId == null)
+                                         .Where(rw => rw.Code.Trim().Equals(rw.RedemptionItem.RewardCode.Trim()))
+                                         .OrderBy(rw=> rw.Id)
+                                         .ToList();
+
+                        foreach (var reward in rewards)
+                        {
+                            reward.RedemptionItemId = item.Id;
+                        }
+
+                        _db.UpdateRange(rewards);
+                        _db.SaveChanges();
+                    }
+
+                    redemptions.ForEach(r => r.SetAsProcessStock());
+                }
 
                 _db.SaveChanges();
 

@@ -29,11 +29,10 @@ namespace EMRedemption.Controllers
         }
 
         [HttpGet]
-        //[Authorize]
+        [Authorize]
         public ActionResult Index(string filterName,string keyword)
         {
-
-            List<string> filters = new List<string>()
+                List<string> filters = new List<string>()
             {
                 RewardStock.Avalible,
                 RewardStock.IsInUsed,
@@ -44,9 +43,7 @@ namespace EMRedemption.Controllers
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                rewards = rewards.Where(c => c.Code.Contains(keyword) ||
-                                             c.SerialNo.Contains(keyword) ||
-                                             c.Description.Contains(keyword));
+                rewards = rewards.Where(c => c.Description.Contains(keyword));
             }
 
             if (String.IsNullOrEmpty(filterName))
@@ -101,6 +98,7 @@ namespace EMRedemption.Controllers
             model.Quantity = 1;
             return View(model);
         }
+
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]

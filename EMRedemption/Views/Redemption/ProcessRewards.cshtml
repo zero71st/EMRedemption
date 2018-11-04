@@ -1,4 +1,4 @@
-﻿
+﻿@model ProcessRewardListViewModel
 @{
     ViewData["Title"] = "ProcessRewards";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -11,9 +11,51 @@
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ProcessRewards">
         
-        <h3>Total Redemption(s):@ViewBag.Total</h3>
+        <h3>Total Redemption(s) @Model.RedemptionTotal</h3>
         <hr />
-        <button type="submit" class="btn btn-primary">Save</button>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Reward Code
+                    </th>
+                    <th>
+                        Reward Name
+                    </th>
+                    <th>
+                        Quantity
+                    </th>
+                    <th>
+                        Stock Available
+                    </th>
+                    <th>
+                        Balance
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var item in Model.ProcessRewards){
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RewardCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RewardName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Quantity)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Available)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Balance)
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        <button type="submit" class="btn btn-primary">Confirm</button>
         <a asp-action="Index" class="btn btn-primary">Cancel</a>
     </form>
 </div>

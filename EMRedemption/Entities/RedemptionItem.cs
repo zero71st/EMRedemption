@@ -12,6 +12,9 @@ namespace EMRedemption.Entities
         public int Quantity { get; set; }
         public int Points { get; set; }
 
+        public int RedemptionId { get; set; }
+        public virtual Redemption Redemption { get; set; }
+
         public virtual List<Reward> Rewards { get; set; }
     }
 }
