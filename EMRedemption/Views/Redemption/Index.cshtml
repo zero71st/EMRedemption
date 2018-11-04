@@ -3,14 +3,18 @@
     ViewData["Title"] = "Manage Redemptions";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+<hr />
 <h3>PROCESS REDEMPTIONS</h3>
 <hr />
-<p>
-    <a class="btn btn-default">
-        <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Process Rewards
-    </a>
-</p>
+
+@if (Model.Redemptions.Count > 0 && Model.FilterName.Equals(RedemptionProcess.ProcessRewards))
+{
+    <p>
+        <a asp-controller="Redemption" asp-action="ProcessRewards" class="btn btn-default">
+            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Process Rewards
+        </a>
+    </p>
+}
 
 <form class="form-inline">
     <div class="form-group">
@@ -23,94 +27,117 @@
     <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
 </form>
 <hr />
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                #
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Redemptions[0].TransactionID)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Redemptions[0].RetailerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Redemptions[0].RetailerStoreName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Redemptions[0].RetailerPhoneNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Redemptions[0].RetailerEmailAddress)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Redemptions[0].RedeemDateTime)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody class="table-hover">
-        @foreach (var item in Model.Redemptions)
-        {
-            <tr class="success">
-                <td>
-                    @Html.DisplayFor(modelItem => item.LineNo)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TransactionID)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RetailerName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RetailerStoreName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RedeemDateTime)
-                </td>
-                <td></td>
-            </tr>
-            <tr></tr>
+@if (Model.Redemptions.Count == 0)
+{
+    <p>
+        <div class="alert alert-warning" role="alert">Not found redemptions to process reward!</div>
+    </p>
+}
+else
+{
+    @if (Model.FilterName.Equals(RedemptionProcess.ProcessRewards))
+    {
+        <small>Redemptions to process rewards(s): <b>@Model.Redemptions.Count</b></small>
+    }
+    @if (Model.FilterName.Equals(RedemptionProcess.ProcessDone))
+    {
+        <small>Redemptions're processed rewards(s): <>@Model.Redemptions.Count</></small>
+    }
+    @if (Model.FilterName.Equals(RedemptionProcess.All))
+    {
+        <small>All redemption(s): <b>@Model.Redemptions.Count</b></small>
+    }
+
+    <table class="table active">
+        <thead>
             <tr>
-                <td></td>
-                <td>#</td>
-                <td>Reward Code</td>
-                <td>Reward Name</td>
-                <td>Points</td>
-                <td>Quantity</td>
-                <td></td>
+                <th>
+                    #
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].TransactionID)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].RetailerName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].RetailerStoreName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].RetailerPhoneNumber)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].RetailerEmailAddress)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].RedeemDateTime)
+                </th>
+                <th></th>
             </tr>
-            <tr>
-                @foreach (var detail in item.RedemptionItems)
-                {
-                <tr class="table-condensed">
-                    <td></td>
+        </thead>
+        <tbody class="table-hover">
+            @foreach (var item in Model.Redemptions)
+            {
+                <tr class="success">
                     <td>
-                        @Html.DisplayFor(modelItem => detail.LineNo)
+                        @Html.DisplayFor(modelItem => item.LineNo)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.RewardCode)
+                        @Html.DisplayFor(modelItem => item.TransactionID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.RewardName)
+                        @Html.DisplayFor(modelItem => item.RetailerName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.Points)
+                        @Html.DisplayFor(modelItem => item.RetailerStoreName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.Quantity)
+                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.RedeemDateTime)
                     </td>
                     <td></td>
                 </tr>
-            }
+                <tr></tr>
+                <tr>
+                    <td></td>
+                    <td>#</td>
+                    <td>Reward Code</td>
+                    <td>Reward Name</td>
+                    <td>Points</td>
+                    <td>Quantity</td>
+                    <td></td>
                 </tr>
-            }
-    </tbody>
-</table>
+                <tr>
+                    @foreach (var detail in item.RedemptionItems)
+                    {
+                    <tr class="table-condensed">
+                        <td></td>
+                        <td>
+                            @Html.DisplayFor(modelItem => detail.LineNo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => detail.RewardCode)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => detail.RewardName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => detail.Points)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => detail.Quantity)
+                        </td>
+                        <td></td>
+                    </tr>
+                }
+                    </tr>
+                }
+        </tbody>
+    </table>
+}
+

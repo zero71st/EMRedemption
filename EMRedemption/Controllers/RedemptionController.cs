@@ -15,6 +15,7 @@ using EMRedemption.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using EMRedemption.Models;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -37,19 +38,28 @@ namespace EMRedemption.Controllers
         {
             List<string> Filters = new List<string>()
             {
-                "Process Reward Stock",
-                "Processed Reward",
-                "-All-",
+                RedemptionProcess.ProcessRewards,
+                RedemptionProcess.ProcessDone,
+                RedemptionProcess.All,
             };
 
             IEnumerable<Redemption> redemptions = _db.Redemptions
                                                   .Include(r => r.RedemptionItems).AsEnumerable();
-            
+           
             if(!String.IsNullOrEmpty(keyword))
             {
                 redemptions = redemptions
                              .Where(r => r.RetailerName.Contains(keyword));
             }
+
+            if (String.IsNullOrEmpty(filterName))
+                filterName = RedemptionProcess.ProcessRewards;
+
+            if (filterName.Equals(RedemptionProcess.ProcessRewards))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.New);
+
+            if (filterName.Equals(RedemptionProcess.ProcessDone))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.ProcessStock);
 
             redemptions = redemptions.ToList();
 
@@ -98,6 +108,33 @@ namespace EMRedemption.Controllers
 
         [HttpGet]
         [Authorize]
+        public IActionResult ProcessRewards()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult ProcessRewards(string dummy)
+        {
+            try
+            {
+                var redemptions = _db.Redemptions.Where(r => r.Status == RedemptionStatus.New).ToList();
+
+                redemptions.ForEach(r => r.SetAsProcessStock());
+
+                _db.SaveChanges();
+
+                return RedirectToAction("Index");
+            }
+            catch (Exception)
+            {
+                return View();
+            }
+        }
+
+        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> Retrieve(string redeemDate)
         {
             ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");  
@@ -121,7 +158,7 @@ namespace EMRedemption.Controllers
             ViewBag.IsSaveToDatabase = redempts.Count > 0;
 
             int j = 0;
-            var models = redemptions.Select(r => { j++; return new RedemptionViewModel(j, r); });
+            var models = redemptions.Select(r => { j++; return new RedemptionViewModel(j, r); }).ToList<RedemptionViewModel>();
 
             return View(models);
         }
@@ -158,6 +195,7 @@ namespace EMRedemption.Controllers
                 redemption.RetailerEmailAddress = master.retailerEmailAddress;
                 redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
                 redemption.RedeemDateTime = master.RedeemDateTime;
+                redemption.FetchDateTime = DateTime.Now;
                 redemption.Status = RedemptionStatus.New;
                 redemption.RedemptionItems.AddRange(master.productDetails.Select(i => new RedemptionItem
                 {
