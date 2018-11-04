@@ -36,7 +36,7 @@ namespace EMRedemption.Controllers
         [Authorize]
         public IActionResult Index(string filterName,string keyword)
         {
-            List<string> Filters = new List<string>()
+            List<string> filters = new List<string>()
             {
                 RedemptionProcess.ProcessRewards,
                 RedemptionProcess.ProcessDone,
@@ -69,7 +69,7 @@ namespace EMRedemption.Controllers
 
             var model = new RedemptionListViewModel();
             model.Redemptions = redemptionView.ToList();
-            model.Filter = new SelectList(Filters);
+            model.Filter = new SelectList(filters);
             model.FilterName = filterName;
             model.Keyword = keyword;
 

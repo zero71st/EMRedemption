@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -13,19 +14,28 @@ namespace EMRedemption.Models.RewardViewModels
 
         public int LineNo { get; set; }
 
+        [Required]
         [DisplayName("Reward Code")]
         public string Code { get; set; }
 
+        [Required]
         [DisplayName("Serial Number")]
         public string SerialNo { get; set; }
 
-        [DisplayName("Reward Description")]
+        [Required]
+        [DisplayName("Reward Name")]
         public string Description { get; set; }
 
+        [Required]
         [DisplayName("Reward Type")]
         public string RewardType { get; set; }
 
+        [Required]
+        [DisplayName("Quantity")]
+        public int Quantity { get; set; }
+
         [DisplayName("Expire Date")]
+        [DisplayFormat(DataFormatString ="{0:d}")]
         public DateTime ExpireDate { get; set; }
 
         [DisplayName("Added By")]
@@ -48,6 +58,7 @@ namespace EMRedemption.Models.RewardViewModels
             Description = reward.Description;
             RewardType = reward.RewardType;
             ExpireDate = reward.ExpireDate;
+            Quantity = reward.Quantity;
         }
     }
 }

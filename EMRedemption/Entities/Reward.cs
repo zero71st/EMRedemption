@@ -25,13 +25,14 @@ namespace EMRedemption.Entities
             AddDate = DateTime.Now;
         }
 
-        public Reward(string code,string serialNo,string description,string rewardType,DateTime expireDate,string addBy):this()
+        public Reward(string code,string serialNo,string description,string rewardType,DateTime expireDate,int quantity,string addBy):this()
         {
             Code = code;
             SerialNo = serialNo;
             Description = description;
             RewardType = rewardType;
             ExpireDate = expireDate;
+            Quantity = quantity;
             AddBy = addBy;
         }
     }

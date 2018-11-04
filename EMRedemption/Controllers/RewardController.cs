@@ -10,6 +10,7 @@ using EMRedemption.Entities;
 using Microsoft.AspNetCore.Identity;
 using EMRedemption.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace EMRedemption.Controllers
 {
@@ -29,52 +30,88 @@ namespace EMRedemption.Controllers
 
         [HttpGet]
         //[Authorize]
-        public ActionResult Index(string search)
+        public ActionResult Index(string filterName,string keyword)
         {
+
+            List<string> filters = new List<string>()
+            {
+                RewardStock.Avalible,
+                RewardStock.IsInUsed,
+                RewardStock.All
+            };
+
             var rewards = _db.Rewards.AsEnumerable();
 
-            if (!String.IsNullOrEmpty(search))
+            if (!String.IsNullOrEmpty(keyword))
             {
-                rewards = rewards.Where(c => c.Code.Contains(search));
+                rewards = rewards.Where(c => c.Code.Contains(keyword) ||
+                                             c.SerialNo.Contains(keyword) ||
+                                             c.Description.Contains(keyword));
+            }
+
+            if (String.IsNullOrEmpty(filterName))
+                filterName = RewardStock.Avalible;
+
+            if (filterName.Equals(RewardStock.Avalible))
+            {
+                rewards = rewards.Where(r => r.RedemptionItemId == null || r.RedemptionItemId == 0);
+            }
+
+            if (filterName.Equals(RewardStock.IsInUsed))
+            {
+                rewards = rewards.Where(r => r.RedemptionItemId > 0);
             }
 
             var i = 0;
-            var models = rewards.Select(c =>
+            var models = rewards.OrderBy(r=> r.RewardType)
+                        .ThenBy(r=> r.Code)
+                        .Select(r =>
                         {
                             i++;
                             return new RewardViewModel
                             {
                                 LineNo = i,
-                                Id = c.Id,
-                                Code = c.Code,
-                                SerialNo = c.SerialNo,
-                                Description = c.Description,
-                                RewardType = c.RewardType,
-                                ExpireDate = c.ExpireDate,
-                                IsUsed = c.RedemptionItemId != null ? true : false,
-                                AddBy = c.AddBy,
-                                AddDate = c.AddDate,
+                                Id = r.Id,
+                                Code = r.Code,
+                                SerialNo = r.SerialNo,
+                                Description = r.Description,
+                                RewardType = r.RewardType,
+                                ExpireDate = r.ExpireDate,
+                                Quantity = r.Quantity,
+                                IsUsed = r.RedemptionItemId != null ? true : false,
+                                AddBy = r.AddBy,
+                                AddDate = r.AddDate,
                             };
-                        }).ToList();
+                        })
+                        .ToList();
 
-            return View(models);
+            var model = new RewardListViewModel();
+            model.Rewards = models;
+            model.Filters = new SelectList(filters);
+            model.FilterName = filterName;
+            model.Keyword = keyword;
+
+            return View(model);
         }
 
         public ActionResult Create()
         {
-            return View();
+            var model = new RewardViewModel();
+            model.ExpireDate = DateTime.Now.Date;
+            model.Quantity = 1;
+            return View(model);
         }
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate")] RewardViewModel model)
+        public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate,Quantity")] RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                Reward reward = new Reward(model.Code,model.SerialNo, model.Description,model.RewardType, model.ExpireDate,User.Identity.Name);
+                Reward reward = new Reward(model.Code,model.SerialNo, model.Description,model.RewardType, model.ExpireDate,model.Quantity,User.Identity.Name);
 
                 _db.Add(reward);
                 _db.SaveChanges();
@@ -101,13 +138,13 @@ namespace EMRedemption.Controllers
                 return NotFound();
 
             RewardViewModel model = new RewardViewModel(reward);
-
+            
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate")]RewardViewModel model)
+        public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate,Quantity")]RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -122,6 +159,7 @@ namespace EMRedemption.Controllers
                     reward.Description = model.Description;
                     reward.RewardType = model.RewardType;
                     reward.ExpireDate = model.ExpireDate;
+                    reward.Quantity = model.Quantity;
 
                     _db.Update(reward);
                     _db.SaveChanges();
