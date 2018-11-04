@@ -13,6 +13,8 @@ using System.Transactions;
 using Microsoft.Extensions.Configuration;
 using EMRedemption.Entities;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,11 +33,37 @@ namespace EMRedemption.Controllers
         }
 
         [Authorize]
-        public IActionResult Index()
+        public IActionResult Index(string filterName,string keyword)
         {
+            List<string> Filters = new List<string>()
+            {
+                "Process Reward Stock",
+                "Processed Reward",
+                "-All-",
+            };
+
+            IEnumerable<Redemption> redemptions = _db.Redemptions
+                                                  .Include(r => r.RedemptionItems).AsEnumerable();
+            
+            if(!String.IsNullOrEmpty(keyword))
+            {
+                redemptions = redemptions
+                             .Where(r => r.RetailerName.Contains(keyword));
+            }
+
+            redemptions = redemptions.ToList();
+
             int i = 0;
-            var models = _db.Redemptions.ToList().Select(r => { i++; return new RedemptionViewModel(i, r); });
-            return View(models);
+ 
+            var redemptionView = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
+
+            var model = new RedemptionListViewModel();
+            model.Redemptions = redemptionView.ToList();
+            model.Filter = new SelectList(Filters);
+            model.FilterName = filterName;
+            model.Keyword = keyword;
+
+            return View(model);
         }
 
         public IConfiguration Configuration { get; }
@@ -67,7 +95,6 @@ namespace EMRedemption.Controllers
                 throw;
             }
         }
-
 
         [HttpGet]
         [Authorize]
@@ -131,6 +158,7 @@ namespace EMRedemption.Controllers
                 redemption.RetailerEmailAddress = master.retailerEmailAddress;
                 redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
                 redemption.RedeemDateTime = master.RedeemDateTime;
+                redemption.Status = RedemptionStatus.New;
                 redemption.RedemptionItems.AddRange(master.productDetails.Select(i => new RedemptionItem
                 {
                     RewardCode = i.productCode,
