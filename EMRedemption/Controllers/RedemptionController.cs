@@ -23,6 +23,8 @@ namespace EMRedemption.Controllers
 {
     public class RedemptionController : Controller
     {
+        public IConfiguration Configuration { get; }
+
         private readonly ApplicationDbContext _db;
 
         public RedemptionController(ApplicationDbContext db,
@@ -38,14 +40,17 @@ namespace EMRedemption.Controllers
         {
             List<string> filters = new List<string>()
             {
-                RedemptionProcess.ProcessRewards,
-                RedemptionProcess.SendEmail,
-                RedemptionProcess.Done,
                 RedemptionProcess.All,
+                RedemptionProcess.Unprocess,
+                RedemptionProcess.Process,
+                RedemptionProcess.SendMailSuccess,
+                RedemptionProcess.UnsendEmailSuccess,
             };
 
             IEnumerable<Redemption> redemptions = _db.Redemptions
-                                                  .Include(r => r.RedemptionItems).AsEnumerable();
+                                                  .Include(r => r.RedemptionItems)
+                                                  .OrderBy(r=> r.RedeemDateTime)
+                                                  .AsEnumerable();
            
             if(!String.IsNullOrEmpty(keyword))
             {
@@ -54,15 +59,15 @@ namespace EMRedemption.Controllers
             }
 
             if (String.IsNullOrEmpty(filterName))
-                filterName = RedemptionProcess.ProcessRewards;
+                filterName = RedemptionProcess.All;
 
-            if (filterName.Equals(RedemptionProcess.ProcessRewards))
+            if (filterName.Equals(RedemptionProcess.Unprocess))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Unprocess);
 
-            if (filterName.Equals(RedemptionProcess.SendEmail))
+            if (filterName.Equals(RedemptionProcess.Process))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
 
-            if (filterName.Equals(RedemptionProcess.Done))
+            if (filterName.Equals(RedemptionProcess.SendMailSuccess))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.EmailSuccess);
 
             redemptions = redemptions.ToList();
@@ -81,7 +86,7 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-
+        [Authorize]
         public IActionResult ProcessRewardList(string keyward)
         {
            
@@ -108,7 +113,31 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-        public IConfiguration Configuration { get; }
+        [Authorize]
+        public IActionResult SendEmailList(string keyward)
+        {
+            IEnumerable<Redemption> redemptions = _db.Redemptions
+                                                  .Where(r => r.Status == RedemptionStatus.Processed)
+                                                  .Include(r => r.RedemptionItems).AsEnumerable();
+
+            if (!String.IsNullOrEmpty(keyward))
+            {
+                redemptions = redemptions
+                             .Where(r => r.RetailerName.Contains(keyward));
+            }
+
+            redemptions = redemptions.ToList();
+
+            int i = 0;
+
+            var redemptionView = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
+
+            var model = new RedemptionListViewModel();
+            model.Redemptions = redemptionView.ToList();
+            model.Keyword = keyward;
+
+            return View(model);
+        }
 
         [HttpGet]
         [Authorize]
@@ -130,7 +159,7 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
