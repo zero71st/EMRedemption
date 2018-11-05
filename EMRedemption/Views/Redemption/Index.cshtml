@@ -7,14 +7,7 @@
 <h3>PROCESS REDEMPTIONS</h3>
 <hr />
 
-@if (Model.Redemptions.Count > 0 && Model.FilterName.Equals(RedemptionProcess.ProcessRewards))
-{
-    <p>
-        <a asp-route="processRewards" asp-route-total="@Model.Redemptions.Count" class="btn btn-default">
-            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Process Rewards
-        </a>
-    </p>
-}
+
 
 <form class="form-inline">
     <div class="form-group">
@@ -30,25 +23,34 @@
 @if (Model.Redemptions.Count == 0)
 {
     <p>
-        <div class="alert alert-warning" role="alert">Not found redemptions to process reward!</div>
+        <div class="alert alert-warning" role="alert">Not found redemptions!</div>
     </p>
 }
 else
 {
-    @if (Model.FilterName.Equals(RedemptionProcess.ProcessRewards))
+    @if (Model.Redemptions.Count > 0 && Model.FilterName.Equals(RedemptionProcess.ProcessRewards))
     {
-        <small>Redemptions to process rewards(s): <b>@Model.Redemptions.Count</b></small>
-    }
-    @if (Model.FilterName.Equals(RedemptionProcess.ProcessDone))
-    {
-        <small>Redemptions're processed rewards(s): <b>@Model.Redemptions.Count</b></small>
-    }
-    @if (Model.FilterName.Equals(RedemptionProcess.All))
-    {
-        <small>All redemption(s): <b>@Model.Redemptions.Count</b></small>
+        <p>
+            <a asp-route="processRewards" class="btn btn-primary">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Process Rewards
+            </a>
+        </p>
     }
 
-    <table class="table active">
+    @if (Model.Redemptions.Count > 0 && Model.FilterName.Equals(RedemptionProcess.SendEmail))
+    {
+        <p>
+            <a asp-route="sendEmail" class="btn btn-primary">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Send Email
+            </a>
+        </p>
+    }
+    
+    <p>
+        <small>Redemption(s): <b>@Model.Redemptions.Count</b></small>
+    </p>
+    
+<table class="table active">
         <thead>
             <tr>
                 <th>
@@ -132,9 +134,11 @@ else
                         <td>
                             @Html.DisplayFor(modelItem => detail.Quantity)
                         </td>
-                        <td></td>
+                        <td>
+                           
+                        </td>
                     </tr>
-                }
+                 }
                     </tr>
                 }
         </tbody>

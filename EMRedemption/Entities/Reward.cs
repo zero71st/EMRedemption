@@ -28,7 +28,7 @@ namespace EMRedemption.Entities
             AddDate = DateTime.Now;
         }
 
-        public Reward(string code,string serialNo,string description,string rewardType,DateTime expireDate,int quantity,string addBy):this()
+        public Reward(string code,string serialNo,string description,string rewardType,DateTime expireDate,int quantity,DateTime lotNo,string addBy):this()
         {
             Code = code;
             SerialNo = serialNo;
@@ -36,6 +36,7 @@ namespace EMRedemption.Entities
             RewardType = rewardType;
             ExpireDate = expireDate;
             Quantity = quantity;
+            LotNo = lotNo.ToString("yyyy-MM-dd");
             AddBy = addBy;
         }
     }

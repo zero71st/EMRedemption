@@ -39,7 +39,8 @@ namespace EMRedemption.Controllers
             List<string> filters = new List<string>()
             {
                 RedemptionProcess.ProcessRewards,
-                RedemptionProcess.ProcessDone,
+                RedemptionProcess.SendEmail,
+                RedemptionProcess.Done,
                 RedemptionProcess.All,
             };
 
@@ -58,14 +59,18 @@ namespace EMRedemption.Controllers
             if (filterName.Equals(RedemptionProcess.ProcessRewards))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.New);
 
-            if (filterName.Equals(RedemptionProcess.ProcessDone))
+            if (filterName.Equals(RedemptionProcess.SendEmail))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.ProcessStock);
+
+            if (filterName.Equals(RedemptionProcess.Done))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.EmailSended);
 
             redemptions = redemptions.ToList();
 
             int i = 0;
  
             var redemptionView = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
+
 
             var model = new RedemptionListViewModel();
             model.Redemptions = redemptionView.ToList();
@@ -109,9 +114,9 @@ namespace EMRedemption.Controllers
         [HttpGet]
         [Authorize]
         [Route("/Redemption/ProcessRewards", Name = "processRewards")]
-        public IActionResult ProcessRewards(int total)
+        public IActionResult ProcessRewards()
         {
-            var itemGroup = _db.RedemptionItems.Include(i=> i.Redemption)
+            var itemGroup =     _db.RedemptionItems.Include(i=> i.Redemption)
                                  .Where(r => r.Redemption.Status == RedemptionStatus.New)
                                  .GroupBy(g=> g.RewardCode)
                                  .Select(g=> new
@@ -135,7 +140,7 @@ namespace EMRedemption.Controllers
 
                 item.Available = _db.Rewards.Where(rw => rw.RedemptionItemId == null)
                                             .Where(rw=> rw.Code.Equals(item.RewardCode))
-                                            .Count();
+                                            .Sum(rw => rw.Quantity);
 
                 item.Balance = item.Available - item.Quantity;
 
@@ -146,6 +151,15 @@ namespace EMRedemption.Controllers
             model.ProcessRewards.AddRange(items.OrderBy(i=> i.RewardCode));
             
             return View(model);
+        }
+
+        private List<Reward> GetAvailableRewards(string rewardCode)
+        {
+            return _db.Rewards
+                    .Where(rw => rw.Code == rewardCode)
+                    .Where(rw => rw.RedemptionItemId == null)
+                    .OrderBy(rw => rw.LotNo)
+                    .ToList();
         }
 
         [HttpPost]
@@ -161,32 +175,51 @@ namespace EMRedemption.Controllers
 
                 foreach (var redemption in redemptions)
                 {
+                    // Process only transaction that reward enough
+                    if (!IsRewardEnough(redemption))
+                        continue;
+
                     foreach (var item in redemption.RedemptionItems)
                     {
-                        var rewards = _db.Rewards
-                                         .Where(rw => rw.Code == item.RewardCode)
-                                         .Where(rw => rw.RedemptionItemId == null)
-                                         .ToList();
+                        var rewards = GetAvailableRewards(item.RewardCode);
 
-                        foreach (var reward in rewards)
+                        // Reward quatity must >= item.Quantity
+                        if(rewards.Sum(rw=> rw.Quantity) >= item.Quantity)
                         {
-                            reward.RedemptionItemId = item.Id;
-                        }
+                            for (int i = 1; i <= item.Quantity; i++)
+                            {
+                                foreach (var reward in rewards)
+                                {
+                                    reward.RedemptionItemId = item.Id;
+                                    reward.Quantity = reward.Quantity-1;
+                                }
+                            }
 
-                        _db.UpdateRange(rewards);
+                            _db.UpdateRange(rewards);
+                        }
                     }
 
-                    redemptions.ForEach(r => r.SetAsProcessStock());
+                    redemption.SetAsProcessStock();
+                    _db.SaveChanges();
                 }
 
-                _db.SaveChanges();
-
-                return RedirectToAction("Index");
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception)
             {
                 return View();
             }
+        }
+
+        private bool IsRewardEnough(Redemption redemption)
+        {
+            foreach (var item in redemption.RedemptionItems)
+            {
+                if (item.Quantity > GetAvailableRewards(item.RewardCode).Sum(rw=> rw.Quantity))
+                    return false;
+            }
+
+            return true;
         }
 
         [HttpGet]
@@ -251,6 +284,7 @@ namespace EMRedemption.Controllers
                 redemption.RetailerEmailAddress = master.retailerEmailAddress;
                 redemption.RetailerPhoneNumber = master.retailerPhoneNumber;
                 redemption.RedeemDateTime = master.RedeemDateTime;
+                redemption.FetchBy = User.Identity.Name;
                 redemption.FetchDateTime = DateTime.Now;
                 redemption.Status = RedemptionStatus.New;
                 redemption.RedemptionItems.AddRange(master.productDetails.Select(i => new RedemptionItem

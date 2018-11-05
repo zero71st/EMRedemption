@@ -40,7 +40,8 @@ namespace EMRedemption.Models.RewardViewModels
 
         [Required]
         [DisplayName("Lot No.")]
-        public string LotNo { get; set; }
+        [DisplayFormat(DataFormatString ="{0:d}")]
+        public DateTime LotNo { get; set; }
 
         [DisplayName("Added By")]
         public string AddBy { get; set; }
@@ -63,7 +64,20 @@ namespace EMRedemption.Models.RewardViewModels
             ExpireDate = reward.ExpireDate;
             Quantity = reward.Quantity;
             RewardType = reward.RewardType;
-            LotNo = reward.LotNo;
+            LotNo = StringLotNoToDateLotNo(reward.LotNo);
+        }
+
+        public static DateTime StringLotNoToDateLotNo(string lotNo)
+        {
+            if (String.IsNullOrEmpty(lotNo))
+                throw new Exception("Lot No. can not be empty or null");
+
+            //2010-11-05
+            int y = int.Parse(lotNo.Substring(0, 4));
+            int m = int.Parse(lotNo.Substring(5, 2));
+            int d = int.Parse(lotNo.Substring(8, 2));
+
+            return new DateTime(y, m, d);
         }
     }
 }

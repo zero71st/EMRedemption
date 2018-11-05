@@ -17,15 +17,10 @@ namespace EMRedemption.Controllers
     public class RewardController : Controller
     {
         private readonly ApplicationDbContext _db;
-        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public RewardController(
-            ApplicationDbContext db,
-            SignInManager<ApplicationUser> signInManager
-            )
+        public RewardController(ApplicationDbContext db)
         {
             _db = db;
-            _signInManager = signInManager;
         }
 
         [HttpGet]
@@ -60,27 +55,30 @@ namespace EMRedemption.Controllers
             }
 
             var i = 0;
-            var models = rewards.OrderBy(r=> r.RewardType)
-                        .ThenBy(r=> r.Code)
-                        .Select(r =>
+            var models = rewards
+                        .OrderBy(rw=> rw.LotNo)
+                        .OrderBy(rw=> rw.RewardType)
+                        .ThenBy(rw=> rw.Code)
+                        .ToList()
+                        .Select(rw =>
                         {
                             i++;
                             return new RewardViewModel
                             {
                                 LineNo = i,
-                                Id = r.Id,
-                                Code = r.Code,
-                                SerialNo = r.SerialNo,
-                                Description = r.Description,
-                                RewardType = r.RewardType,
-                                ExpireDate = r.ExpireDate,
-                                Quantity = r.Quantity,
-                                IsUsed = r.RedemptionItemId != null ? true : false,
-                                AddBy = r.AddBy,
-                                AddDate = r.AddDate,
+                                Id = rw.Id,
+                                Code = rw.Code,
+                                SerialNo = rw.SerialNo,
+                                Description = rw.Description,
+                                RewardType = rw.RewardType,
+                                ExpireDate = rw.ExpireDate,
+                                Quantity = rw.Quantity,
+                                LotNo = RewardViewModel.StringLotNoToDateLotNo(rw.LotNo),
+                                IsUsed = rw.RedemptionItemId != null ? true : false,
+                                AddBy = rw.AddBy,
+                                AddDate = rw.AddDate,
                             };
-                        })
-                        .ToList();
+                        }).ToList();
 
             var model = new RewardListViewModel();
             model.Rewards = models;
@@ -95,6 +93,7 @@ namespace EMRedemption.Controllers
         {
             var model = new RewardViewModel();
             model.ExpireDate = DateTime.Now.Date;
+            model.LotNo = DateTime.Now.Date;
             model.Quantity = 1;
             return View(model);
         }
@@ -102,14 +101,14 @@ namespace EMRedemption.Controllers
         // POST: Coupon/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate,Quantity")] RewardViewModel model)
+        public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")] RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
             try
             {
-                Reward reward = new Reward(model.Code,model.SerialNo, model.Description,model.RewardType, model.ExpireDate,model.Quantity,User.Identity.Name);
+                Reward reward = new Reward(model.Code,model.SerialNo, model.Description,model.RewardType, model.ExpireDate,model.Quantity,model.LotNo,User.Identity.Name);
 
                 _db.Add(reward);
                 _db.SaveChanges();
@@ -142,7 +141,7 @@ namespace EMRedemption.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate,Quantity")]RewardViewModel model)
+        public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -158,6 +157,7 @@ namespace EMRedemption.Controllers
                     reward.RewardType = model.RewardType;
                     reward.ExpireDate = model.ExpireDate;
                     reward.Quantity = model.Quantity;
+                    reward.LotNo = model.LotNo.ToString("yyyy-MM-dd");
 
                     _db.Update(reward);
                     _db.SaveChanges();

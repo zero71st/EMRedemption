@@ -1,4 +1,6 @@
-﻿using System;
+﻿using EMRedemption.Entities;
+using EMRedemption.Models.RewardViewModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -24,5 +26,12 @@ namespace EMRedemption.Models.RedemptionViewModels
 
         [DisplayName("Quantity")]
         public int Quantity { get; set; }
+
+        public List<RewardViewModel> Rewards { get; set; }
+
+        public RedemptionItemViewModel()
+        {
+            Rewards = new List<RewardViewModel>();
+        }
     }
 }
