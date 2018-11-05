@@ -10,6 +10,7 @@
 
 <form class="form-inline">
     <div class="form-group">
+        <input type="hidden" asp-for="FilterName" />
         <label class="sr-only">Search redemption info</label>
         <input asp-for="Keyword" type="text" class="form-control" placeholder="Search...">
     </div>
@@ -20,17 +21,29 @@
 @if (Model.Redemptions.Count == 0)
 {
     <p>
-        <div class="alert alert-warning" role="alert">Not found redemptions for code process!</div>
+        <div class="alert alert-warning" role="alert">Not found redemptions!</div>
     </p>
 }
 
 else
 {
-    <p>
-        <a asp-route="processRewards" class="btn btn-primary">
-            <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Send Email
-        </a>
-    </p>
+    @if (Model.FilterName.Equals(RedemptionProcess.Processed))
+    {
+        <p>
+            <a asp-action="SendEmail" class="btn btn-primary">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Send Email
+            </a>
+        </p>
+    }
+
+    @if (Model.FilterName.Equals(RedemptionProcess.UnsendEmailSuccess))
+    {
+        <p>
+            <a asp-action="SendEmail" class="btn btn-primary">
+                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Resend Email
+            </a>
+        </p>
+    }
 
     <p>
         <small>Redemption(s): <b>@Model.Redemptions.Count</b></small>
@@ -88,7 +101,16 @@ else
                     <td>
                         @Html.DisplayFor(modelItem => item.RedeemDateTime)
                     </td>
-                    <td></td>
+                    <td>
+                        @if (Model.FilterName.Equals(RedemptionProcess.SendMailSuccess))
+                        {
+                        <p>
+                            <a asp-action="ChangeStatus"  asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>Change as unsend-email
+                            </a>
+                        </p>
+                        }
+                    </td>
                 </tr>
                 <tr></tr>
                 <tr>

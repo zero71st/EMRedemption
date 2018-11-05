@@ -42,7 +42,7 @@ namespace EMRedemption.Controllers
             {
                 RedemptionProcess.All,
                 RedemptionProcess.Unprocess,
-                RedemptionProcess.Process,
+                RedemptionProcess.Processed,
                 RedemptionProcess.SendMailSuccess,
                 RedemptionProcess.UnsendEmailSuccess,
             };
@@ -64,18 +64,20 @@ namespace EMRedemption.Controllers
             if (filterName.Equals(RedemptionProcess.Unprocess))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Unprocess);
 
-            if (filterName.Equals(RedemptionProcess.Process))
+            if (filterName.Equals(RedemptionProcess.Processed))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
 
             if (filterName.Equals(RedemptionProcess.SendMailSuccess))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.EmailSuccess);
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.SendEmailSuccess);
+
+            if (filterName.Equals(RedemptionProcess.UnsendEmailSuccess))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.UnemailSuccess);
 
             redemptions = redemptions.ToList();
 
             int i = 0;
  
             var redemptionView = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
-
 
             var model = new RedemptionListViewModel();
             model.Redemptions = redemptionView.ToList();
@@ -114,10 +116,9 @@ namespace EMRedemption.Controllers
         }
 
         [Authorize]
-        public IActionResult SendEmailList(string keyward)
+        public IActionResult SendEmailList(string filterName,string keyward)
         {
             IEnumerable<Redemption> redemptions = _db.Redemptions
-                                                  .Where(r => r.Status == RedemptionStatus.Processed)
                                                   .Include(r => r.RedemptionItems).AsEnumerable();
 
             if (!String.IsNullOrEmpty(keyward))
@@ -125,6 +126,15 @@ namespace EMRedemption.Controllers
                 redemptions = redemptions
                              .Where(r => r.RetailerName.Contains(keyward));
             }
+
+            if (filterName.Equals(RedemptionProcess.Unprocess))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Unprocess);
+
+            if (filterName.Equals(RedemptionProcess.Processed))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
+
+            if (filterName.Equals(RedemptionProcess.SendMailSuccess))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.SendEmailSuccess);
 
             redemptions = redemptions.ToList();
 
@@ -134,10 +144,53 @@ namespace EMRedemption.Controllers
 
             var model = new RedemptionListViewModel();
             model.Redemptions = redemptionView.ToList();
+            model.FilterName = filterName;
             model.Keyword = keyward;
 
             return View(model);
         }
+
+        [Authorize]
+        public IActionResult SendEmail()
+        {
+            return View();
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult SendEmail(int id)
+        {
+            try
+            {
+                var redemptionsToSendEmail = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Processed).ToList();
+                if (redemptionsToSendEmail.Count > 0)
+                {
+                    redemptionsToSendEmail.ForEach(r => r.SetAsSendEmailSuccess());
+
+                    _db.UpdateRange(redemptionsToSendEmail);
+                    _db.SaveChanges();
+
+                    return RedirectToAction(nameof(SendEmailList),"filterName="+RedemptionProcess.Processed);
+                }
+            }
+            catch (Exception)
+            {
+                return View();
+            }
+
+            return View();
+        }
+
+        [Authorize]
+        public IActionResult ChangeStatus(int id)
+        {
+            var redemption = _db.Redemptions.Find(id);
+
+            var model = new RedemptionViewModel(redemption);
+
+            return View(model);
+        }
+        
 
         [HttpGet]
         [Authorize]

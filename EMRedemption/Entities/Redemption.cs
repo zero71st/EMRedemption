@@ -33,7 +33,7 @@ namespace EMRedemption.Entities
 
         public void SetAsSendEmailSuccess()
         {
-            Status = RedemptionStatus.EmailSuccess;
+            Status = RedemptionStatus.SendEmailSuccess;
         }
 
         public void SetAsSendEmailUnsuccess()
