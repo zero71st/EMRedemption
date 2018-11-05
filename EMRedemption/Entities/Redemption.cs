@@ -23,17 +23,22 @@ namespace EMRedemption.Entities
         public Redemption()
         {
             RedemptionItems = new List<RedemptionItem>();
-            Status = RedemptionStatus.New;
+            Status = RedemptionStatus.Unprocess;
         }
   
-        public void SetAsProcessStock()
+        public void SetAsProcessed()
         {
-            Status = RedemptionStatus.ProcessStock;
+            Status = RedemptionStatus.Processed;
         }
 
-        public void SetAsEmailSended()
+        public void SetAsSendEmailSuccess()
         {
-            Status = RedemptionStatus.EmailSended;
+            Status = RedemptionStatus.EmailSuccess;
+        }
+
+        public void SetAsSendEmailUnsuccess()
+        {
+            Status = RedemptionStatus.UnemailSuccess;
         }
     }
 }

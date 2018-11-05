@@ -57,13 +57,13 @@ namespace EMRedemption.Controllers
                 filterName = RedemptionProcess.ProcessRewards;
 
             if (filterName.Equals(RedemptionProcess.ProcessRewards))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.New);
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Unprocess);
 
             if (filterName.Equals(RedemptionProcess.SendEmail))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.ProcessStock);
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
 
             if (filterName.Equals(RedemptionProcess.Done))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.EmailSended);
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.EmailSuccess);
 
             redemptions = redemptions.ToList();
 
@@ -77,6 +77,33 @@ namespace EMRedemption.Controllers
             model.Filter = new SelectList(filters);
             model.FilterName = filterName;
             model.Keyword = keyword;
+
+            return View(model);
+        }
+
+
+        public IActionResult ProcessRewardList(string keyward)
+        {
+           
+            IEnumerable<Redemption> redemptions = _db.Redemptions
+                                                  .Where(r=> r.Status == RedemptionStatus.Unprocess)
+                                                  .Include(r => r.RedemptionItems).AsEnumerable();
+
+            if (!String.IsNullOrEmpty(keyward))
+            {
+                redemptions = redemptions
+                             .Where(r => r.RetailerName.Contains(keyward));
+            }
+
+            redemptions = redemptions.ToList();
+
+            int i = 0;
+
+            var redemptionView = redemptions.Select(r => { i++; return new RedemptionViewModel(i, r); });
+
+            var model = new RedemptionListViewModel();
+            model.Redemptions = redemptionView.ToList();
+            model.Keyword = keyward;
 
             return View(model);
         }
@@ -117,7 +144,7 @@ namespace EMRedemption.Controllers
         public IActionResult ProcessRewards()
         {
             var itemGroup =     _db.RedemptionItems.Include(i=> i.Redemption)
-                                 .Where(r => r.Redemption.Status == RedemptionStatus.New)
+                                 .Where(r => r.Redemption.Status == RedemptionStatus.Unprocess)
                                  .GroupBy(g=> g.RewardCode)
                                  .Select(g=> new
                                  {
@@ -147,7 +174,7 @@ namespace EMRedemption.Controllers
                 items.Add(item);
             }
 
-            model.RedemptionTotal = _db.Redemptions.Where(r => r.Status == RedemptionStatus.New).Count();
+            model.RedemptionTotal = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Unprocess).Count();
             model.ProcessRewards.AddRange(items.OrderBy(i=> i.RewardCode));
             
             return View(model);
@@ -170,7 +197,7 @@ namespace EMRedemption.Controllers
             {
                 var redemptions = _db.Redemptions
                                      .Include(r=> r.RedemptionItems)
-                                     .Where(r => r.Status == RedemptionStatus.New)
+                                     .Where(r => r.Status == RedemptionStatus.Unprocess)
                                      .ToList();
 
                 foreach (var redemption in redemptions)
@@ -199,7 +226,7 @@ namespace EMRedemption.Controllers
                         }
                     }
 
-                    redemption.SetAsProcessStock();
+                    redemption.SetAsProcessed();
                     _db.SaveChanges();
                 }
 
@@ -286,7 +313,7 @@ namespace EMRedemption.Controllers
                 redemption.RedeemDateTime = master.RedeemDateTime;
                 redemption.FetchBy = User.Identity.Name;
                 redemption.FetchDateTime = DateTime.Now;
-                redemption.Status = RedemptionStatus.New;
+                redemption.Status = RedemptionStatus.Unprocess;
                 redemption.RedemptionItems.AddRange(master.productDetails.Select(i => new RedemptionItem
                 {
                     RewardCode = i.productCode,

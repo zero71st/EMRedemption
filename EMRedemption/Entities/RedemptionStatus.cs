@@ -7,8 +7,9 @@ namespace EMRedemption.Entities
 {
     public enum RedemptionStatus:int
     {
-        New = 1,
-        ProcessStock = 2,
-        EmailSended = 3
+        Unprocess = 1,
+        Processed = 2,
+        EmailSuccess = 3,
+        UnemailSuccess = 4,
     }
 }
