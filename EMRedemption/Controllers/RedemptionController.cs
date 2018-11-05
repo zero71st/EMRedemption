@@ -159,15 +159,13 @@ namespace EMRedemption.Controllers
                                      .Where(r => r.Status == RedemptionStatus.New)
                                      .ToList();
 
-
                 foreach (var redemption in redemptions)
                 {
                     foreach (var item in redemption.RedemptionItems)
                     {
                         var rewards = _db.Rewards
-                                         .Where(rw=> rw.RedemptionItemId == null)
-                                         .Where(rw => rw.Code.Trim().Equals(rw.RedemptionItem.RewardCode.Trim()))
-                                         .OrderBy(rw=> rw.Id)
+                                         .Where(rw => rw.Code == item.RewardCode)
+                                         .Where(rw => rw.RedemptionItemId == null)
                                          .ToList();
 
                         foreach (var reward in rewards)
@@ -176,7 +174,6 @@ namespace EMRedemption.Controllers
                         }
 
                         _db.UpdateRange(rewards);
-                        _db.SaveChanges();
                     }
 
                     redemptions.ForEach(r => r.SetAsProcessStock());

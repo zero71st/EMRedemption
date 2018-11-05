@@ -8,12 +8,15 @@ namespace EMRedemption.Entities
 {
     public class Reward:BaseEntity
     {
+        [MaxLength(5)]
         public string Code { get; set; }
         public string SerialNo { get; set; }
         public string Description { get; set; }
-        public string RewardType { get; set; }
         public int Quantity { get; set; }
         public DateTime ExpireDate { get; set; }
+        [MaxLength(10)]
+        public string LotNo { get; set; }
+        public string RewardType { get; set; }
         public string AddBy { get; set; }
         public DateTime AddDate { get; set; }
 

@@ -27,16 +27,20 @@ namespace EMRedemption.Models.RewardViewModels
         public string Description { get; set; }
 
         [Required]
-        [DisplayName("Reward Type")]
-        public string RewardType { get; set; }
-
-        [Required]
         [DisplayName("Quantity")]
         public int Quantity { get; set; }
 
         [DisplayName("Expire Date")]
-        [DisplayFormat(DataFormatString ="{0:d}")]
+        [DisplayFormat(DataFormatString = "{0:d}")]
         public DateTime ExpireDate { get; set; }
+
+        [Required]
+        [DisplayName("Reward Type")]
+        public string RewardType { get; set; }
+
+        [Required]
+        [DisplayName("Lot No.")]
+        public string LotNo { get; set; }
 
         [DisplayName("Added By")]
         public string AddBy { get; set; }
@@ -56,9 +60,10 @@ namespace EMRedemption.Models.RewardViewModels
             Code = reward.Code;
             SerialNo = reward.SerialNo;
             Description = reward.Description;
-            RewardType = reward.RewardType;
             ExpireDate = reward.ExpireDate;
             Quantity = reward.Quantity;
+            RewardType = reward.RewardType;
+            LotNo = reward.LotNo;
         }
     }
 }

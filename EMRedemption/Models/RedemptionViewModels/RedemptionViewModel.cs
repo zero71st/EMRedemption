@@ -34,6 +34,9 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("Redeem Date Time")]
         public DateTime RedeemDateTime { get; set; }
 
+        [DisplayName("Fetch By")]
+        public string FetchBy { get; set; }
+
         [DisplayName("Fetch Date Time")]
         public DateTime FetchDateTime { get; set; }
 
@@ -51,7 +54,9 @@ namespace EMRedemption.Models.RedemptionViewModels
             RetailerPhoneNumber = redemption.RetailerPhoneNumber;
             RetailerEmailAddress = redemption.RetailerEmailAddress;
             RedeemDateTime = redemption.RedeemDateTime;
+            FetchBy = redemption.FetchBy;
             FetchDateTime = redemption.FetchDateTime;
+
             int i = 0;
             RedemptionItems.AddRange(redemption.RedemptionItems.Select(ri =>
             {
