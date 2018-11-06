@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EMRedemption.Models;
+using System.Net.Mail;
+using System.Net;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -165,14 +167,35 @@ namespace EMRedemption.Controllers
         {
             try
             {
+                SmtpClient client = new SmtpClient("mail.dzcard.com");
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential("kasem.w@dzcard.com","5054278094");
+
                 var redemptionsToSendEmail = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Processed).ToList();
 
                 if (redemptionsToSendEmail.Count > 0)
                 {
-                    redemptionsToSendEmail.ForEach(r => r.SetAsSendEmailSuccess());
+                    try
+                    {
+                        foreach (var redemption in redemptionsToSendEmail)
+                        {
+                            MailMessage mail = new MailMessage();
+                            mail.From = new MailAddress("kasem.w@dzcard.com");
+                            mail.To.Add(redemption.RetailerEmailAddress);
+                            mail.Subject = "Test send redemption";
+                            mail.Body = "Email Body";
 
-                    _db.UpdateRange(redemptionsToSendEmail);
-                    _db.SaveChanges();
+                            client.Send(mail);
+                        }
+                        //redemptionsToSendEmail.ForEach(r => r.SetAsSendEmailSuccess());
+
+                        _db.UpdateRange(redemptionsToSendEmail);
+                        _db.SaveChanges();
+                    }
+                    catch (Exception ex)
+                    {
+                        throw ex;
+                    }
 
                     return RedirectToAction(nameof(SendEmailList),"filterName="+RedemptionProcess.Processed);
                 }
