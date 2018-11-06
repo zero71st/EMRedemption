@@ -167,9 +167,11 @@ namespace EMRedemption.Controllers
         {
             try
             {
-                SmtpClient client = new SmtpClient("mail.dzcard.com");
+                SmtpClient client = new SmtpClient("smtp.gmail.com");
                 client.UseDefaultCredentials = false;
-                client.Credentials = new NetworkCredential("kasem.w@dzcard.com","5054278094");
+                client.Port = 587;
+                client.EnableSsl = true;
+                client.Credentials = new NetworkCredential("zero71st@gmail.com","xxx");
 
                 var redemptionsToSendEmail = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Processed).ToList();
 
@@ -180,7 +182,7 @@ namespace EMRedemption.Controllers
                         foreach (var redemption in redemptionsToSendEmail)
                         {
                             MailMessage mail = new MailMessage();
-                            mail.From = new MailAddress("kasem.w@dzcard.com");
+                            mail.From = new MailAddress("zero71st@gmail.com");
                             mail.To.Add(redemption.RetailerEmailAddress);
                             mail.Subject = "Test send redemption";
                             mail.Body = "Email Body";
