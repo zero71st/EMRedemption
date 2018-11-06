@@ -9,7 +9,7 @@ namespace EMRedemption.Entities
     {
         Unprocess = 1,
         Processed = 2,
-        SendEmailSuccess = 3,
-        UnemailSuccess = 4,
+        DeliveredSuccessful = 3,
+        UndeliverSuccessful = 4,
     }
 }

@@ -9,8 +9,8 @@ namespace EMRedemption.Models
     {
         public const string Unprocess = "Unprocess";
         public const string Processed = "Process";
-        public const string SendMailSuccess = "Delivered Successful";
-        public const string UnsendEmailSuccess = "Undeliver Success";
+        public const string DeliveredSuccessful = "Delivered Successful";
+        public const string UndeliverSuccessful = "Undeliver Success";
         public const string All = "--All--";
     }
 }

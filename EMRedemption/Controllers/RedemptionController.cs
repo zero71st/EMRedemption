@@ -43,8 +43,8 @@ namespace EMRedemption.Controllers
                 RedemptionProcess.All,
                 RedemptionProcess.Unprocess,
                 RedemptionProcess.Processed,
-                RedemptionProcess.SendMailSuccess,
-                RedemptionProcess.UnsendEmailSuccess,
+                RedemptionProcess.DeliveredSuccessful,
+                RedemptionProcess.UndeliverSuccessful,
             };
 
             IEnumerable<Redemption> redemptions = _db.Redemptions
@@ -67,11 +67,11 @@ namespace EMRedemption.Controllers
             if (filterName.Equals(RedemptionProcess.Processed))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
 
-            if (filterName.Equals(RedemptionProcess.SendMailSuccess))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.SendEmailSuccess);
+            if (filterName.Equals(RedemptionProcess.DeliveredSuccessful))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.DeliveredSuccessful);
 
-            if (filterName.Equals(RedemptionProcess.UnsendEmailSuccess))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.UnemailSuccess);
+            if (filterName.Equals(RedemptionProcess.UndeliverSuccessful))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.UndeliverSuccessful);
 
             redemptions = redemptions.ToList();
 
@@ -89,17 +89,17 @@ namespace EMRedemption.Controllers
         }
 
         [Authorize]
-        public IActionResult ProcessRewardList(string keyward)
+        public IActionResult ProcessRewardList(string keyword)
         {
            
             IEnumerable<Redemption> redemptions = _db.Redemptions
                                                   .Where(r=> r.Status == RedemptionStatus.Unprocess)
                                                   .Include(r => r.RedemptionItems).AsEnumerable();
 
-            if (!String.IsNullOrEmpty(keyward))
+            if (!String.IsNullOrEmpty(keyword))
             {
                 redemptions = redemptions
-                             .Where(r => r.RetailerName.Contains(keyward));
+                             .Where(r => r.RetailerName.Contains(keyword));
             }
 
             redemptions = redemptions.ToList();
@@ -110,21 +110,21 @@ namespace EMRedemption.Controllers
 
             var model = new RedemptionListViewModel();
             model.Redemptions = redemptionView.ToList();
-            model.Keyword = keyward;
+            model.Keyword = keyword;
 
             return View(model);
         }
 
         [Authorize]
-        public IActionResult SendEmailList(string filterName,string keyward)
+        public IActionResult SendEmailList(string filterName,string keyword)
         {
             IEnumerable<Redemption> redemptions = _db.Redemptions
                                                   .Include(r => r.RedemptionItems).AsEnumerable();
 
-            if (!String.IsNullOrEmpty(keyward))
+            if (!String.IsNullOrEmpty(keyword))
             {
                 redemptions = redemptions
-                             .Where(r => r.RetailerName.Contains(keyward));
+                             .Where(r => r.RetailerName.Contains(keyword));
             }
 
             if (filterName.Equals(RedemptionProcess.Unprocess))
@@ -133,8 +133,11 @@ namespace EMRedemption.Controllers
             if (filterName.Equals(RedemptionProcess.Processed))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
 
-            if (filterName.Equals(RedemptionProcess.SendMailSuccess))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.SendEmailSuccess);
+            if (filterName.Equals(RedemptionProcess.DeliveredSuccessful))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.DeliveredSuccessful);
+
+            if (filterName.Equals(RedemptionProcess.UndeliverSuccessful))
+                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.UndeliverSuccessful);
 
             redemptions = redemptions.ToList();
 
@@ -145,7 +148,7 @@ namespace EMRedemption.Controllers
             var model = new RedemptionListViewModel();
             model.Redemptions = redemptionView.ToList();
             model.FilterName = filterName;
-            model.Keyword = keyward;
+            model.Keyword = keyword;
 
             return View(model);
         }
@@ -163,6 +166,7 @@ namespace EMRedemption.Controllers
             try
             {
                 var redemptionsToSendEmail = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Processed).ToList();
+
                 if (redemptionsToSendEmail.Count > 0)
                 {
                     redemptionsToSendEmail.ForEach(r => r.SetAsSendEmailSuccess());
@@ -190,8 +194,28 @@ namespace EMRedemption.Controllers
 
             return View(model);
         }
-        
 
+        [Authorize]
+        [HttpPost]
+        public IActionResult ChangeStatus(int id,RedemptionViewModel model)
+        {
+            try
+            {
+                var redemptin = _db.Redemptions.Find(id);
+                redemptin.SetAsSendEmailUnsuccess();
+
+                _db.Update(redemptin);
+                _db.SaveChanges();
+
+                return RedirectToAction("SendEmailList","filterName=" + RedemptionProcess.Processed);
+            }
+            catch (Exception)
+            {
+                return View();
+            }
+
+        }
+        
         [HttpGet]
         [Authorize]
         [Route("/Redemption/ConfirmToStore", Name = "confirmToStore")]

@@ -52,10 +52,10 @@
                                 <a asp-controller="Redemption" asp-action="SendEmailList" asp-route-filterName="@(RedemptionProcess.Processed)">Code Process</a>
                             </li>
                             <li>
-                                <a asp-area="" asp-controller="Redemption" asp-action="SendEmailList" asp-route-filterName="@(RedemptionProcess.SendMailSuccess)">Change Status</a>
+                                <a asp-area="" asp-controller="Redemption" asp-action="SendEmailList" asp-route-filterName="@(RedemptionProcess.DeliveredSuccessful)">Change Status</a>
                             </li>
                             <li>
-                                <a asp-area="" asp-controller="Redemption" asp-action="SendEmailList" asp-route-filterName=@(RedemptionProcess.UnsendEmailSuccess)>Resend Email</a>
+                                <a asp-area="" asp-controller="Redemption" asp-action="SendEmailList" asp-route-filterName=@(RedemptionProcess.UndeliverSuccessful)>Resend Email</a>
                             </li>
                         </ul>
                     </li>

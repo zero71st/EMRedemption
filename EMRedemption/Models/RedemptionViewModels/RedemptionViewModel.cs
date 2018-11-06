@@ -48,6 +48,7 @@ namespace EMRedemption.Models.RedemptionViewModels
         }
         public RedemptionViewModel(Redemption redemption):this()
         {
+            Id = redemption.Id;
             TransactionID = redemption.TransactionID;
             RetailerName = redemption.RetailerName;
             RetailerStoreName = redemption.RetailerStoreName;

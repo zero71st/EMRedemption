@@ -4,8 +4,19 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<hr />
-<h3>CODE PROCESS</h3>
+@if (Model.FilterName.Equals(RedemptionProcess.Processed))
+{
+    <h3>CODE PROCESS</h3>
+}
+else if (Model.FilterName.Equals(RedemptionProcess.DeliveredSuccessful))
+{
+    <h3>Change Status</h3>
+}
+else if (Model.FilterName.Equals(RedemptionProcess.UndeliverSuccessful))
+{
+    <h3>Resend Email</h3>
+}
+
 <hr />
 
 <form class="form-inline">
@@ -36,11 +47,11 @@ else
         </p>
     }
 
-    @if (Model.FilterName.Equals(RedemptionProcess.UnsendEmailSuccess))
+    @if (Model.FilterName.Equals(RedemptionProcess.UndeliverSuccessful))
     {
         <p>
-            <a asp-action="SendEmail" class="btn btn-primary">
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Resend Email
+            <a asp-action="SendEmail" class="btn btn-warning">
+                <span class="glyphicon glyphicon-send" aria-hidden="true"></span>Resend Email
             </a>
         </p>
     }
@@ -102,13 +113,13 @@ else
                         @Html.DisplayFor(modelItem => item.RedeemDateTime)
                     </td>
                     <td>
-                        @if (Model.FilterName.Equals(RedemptionProcess.SendMailSuccess))
+                        @if (Model.FilterName.Equals(RedemptionProcess.DeliveredSuccessful))
                         {
-                        <p>
-                            <a asp-action="ChangeStatus"  asp-route-id="@item.Id" class="btn btn-primary btn-sm">
-                                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>Change as unsend-email
-                            </a>
-                        </p>
+                            <p>
+                                <a asp-action="ChangeStatus" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>Change as unsend-email
+                                </a>
+                            </p>
                         }
                     </td>
                 </tr>
