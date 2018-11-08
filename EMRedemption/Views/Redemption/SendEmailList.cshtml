@@ -50,7 +50,7 @@ else
     @if (Model.FilterName.Equals(RedemptionProcess.UndeliverSuccessful))
     {
         <p>
-            <a asp-action="SendEmail" class="btn btn-warning">
+            <a asp-action="ResendEmail" class="btn btn-warning">
                 <span class="glyphicon glyphicon-send" aria-hidden="true"></span>Resend Email
             </a>
         </p>

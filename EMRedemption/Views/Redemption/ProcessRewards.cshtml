@@ -11,7 +11,7 @@
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ProcessRewards">
         
-        <h3>Total Redemption(s) @Model.RedemptionTotal</h3>
+        <h3>Total Redemption(s): @Model.RedemptionTotal</h3>
         <hr />
         <table class="table">
             <thead>
@@ -56,6 +56,6 @@
             </tbody>
         </table>
         <button type="submit" class="btn btn-primary">Confirm</button>
-        <a asp-action="Index" class="btn btn-primary">Cancel</a>
+        <a asp-action="ProcessRewardList" class="btn btn-primary">Cancel</a>
     </form>
 </div>

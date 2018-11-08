@@ -31,12 +31,12 @@ namespace EMRedemption.Entities
             Status = RedemptionStatus.Processed;
         }
 
-        public void SetAsSendEmailSuccess()
+        public void SetAsDeliveredSuccessful()
         {
             Status = RedemptionStatus.DeliveredSuccessful;
         }
 
-        public void SetAsSendEmailUnsuccess()
+        public void SetAsUndeliverSuccessful()
         {
             Status = RedemptionStatus.UndeliverSuccessful;
         }

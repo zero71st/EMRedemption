@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using EMRedemption.Models;
 using System.Net.Mail;
 using System.Net;
+using EMRedemption.Services;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -28,13 +29,16 @@ namespace EMRedemption.Controllers
         public IConfiguration Configuration { get; }
 
         private readonly ApplicationDbContext _db;
+        private readonly IEmailSender _mailSender;
 
         public RedemptionController(ApplicationDbContext db,
-                                    IConfiguration configuraton)
+                                    IConfiguration configuraton,
+                                    IEmailSender sender)
         {
             _db = db;
 
             Configuration = configuraton;
+            _mailSender = sender;
         }
 
         [Authorize]
@@ -158,7 +162,12 @@ namespace EMRedemption.Controllers
         [Authorize]
         public IActionResult SendEmail()
         {
-            return View();
+            var model = new SendEmailViewModel();
+            model.SendType = "Send Email";
+            model.SendDateTime = DateTime.Now;
+            model.TotalRedemptions = _db.Redemptions.Count(r => r.Status == RedemptionStatus.Processed);
+
+            return View(model);
         }
 
         [Authorize]
@@ -167,39 +176,28 @@ namespace EMRedemption.Controllers
         {
             try
             {
-                SmtpClient client = new SmtpClient("smtp.gmail.com");
-                client.UseDefaultCredentials = false;
-                client.Port = 587;
-                client.EnableSsl = true;
-                client.Credentials = new NetworkCredential("zero71st@gmail.com","xxx");
+                var redemptions = _db.Redemptions
+                                     .Where(r => r.Status == RedemptionStatus.Processed)
+                                     .ToList();
 
-                var redemptionsToSendEmail = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Processed).ToList();
-
-                if (redemptionsToSendEmail.Count > 0)
+                if (redemptions.Count > 0)
                 {
                     try
                     {
-                        foreach (var redemption in redemptionsToSendEmail)
+                        foreach (var redemption in redemptions)
                         {
-                            MailMessage mail = new MailMessage();
-                            mail.From = new MailAddress("zero71st@gmail.com");
-                            mail.To.Add(redemption.RetailerEmailAddress);
-                            mail.Subject = "Test send redemption";
-                            mail.Body = "Email Body";
-
-                            client.Send(mail);
+                            _mailSender.SendEmailAsync(redemption.RetailerEmailAddress,"Inform Code","Message");
+                            redemption.SetAsDeliveredSuccessful();
+                            _db.Update(redemption);
+                            _db.SaveChanges();
                         }
-                        //redemptionsToSendEmail.ForEach(r => r.SetAsSendEmailSuccess());
-
-                        _db.UpdateRange(redemptionsToSendEmail);
-                        _db.SaveChanges();
                     }
                     catch (Exception ex)
                     {
                         throw ex;
                     }
 
-                    return RedirectToAction(nameof(SendEmailList),"filterName="+RedemptionProcess.Processed);
+                    return RedirectToAction(nameof(SendEmailList), "Redemption", new { @filterName = RedemptionProcess.Processed });
                 }
             }
             catch (Exception)
@@ -226,21 +224,57 @@ namespace EMRedemption.Controllers
         {
             try
             {
-                var redemptin = _db.Redemptions.Find(id);
-                redemptin.SetAsSendEmailUnsuccess();
+                var redemption = _db.Redemptions.Find(id);
+                redemption.SetAsUndeliverSuccessful();
 
-                _db.Update(redemptin);
+                _db.Update(redemption);
                 _db.SaveChanges();
 
-                return RedirectToAction("SendEmailList","filterName=" + RedemptionProcess.Processed);
+                return RedirectToAction(nameof(SendEmailList), new { @filterName = RedemptionProcess.DeliveredSuccessful });
             }
             catch (Exception)
             {
                 return View();
             }
-
         }
-        
+
+        [Authorize]
+        [HttpGet]
+        public IActionResult ResendEmail()
+        {
+            var model = new SendEmailViewModel();
+            model.SendType = "Resend Email";
+            model.SendDateTime = DateTime.Now;
+            model.TotalRedemptions = _db.Redemptions.Count(r => r.Status == RedemptionStatus.UndeliverSuccessful);
+
+            return View(model);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult ResendEmail(int id)
+        {
+            var resendMails = _db.Redemptions.Where(c => c.Status == RedemptionStatus.UndeliverSuccessful).ToList();
+            try
+            {
+                foreach (var resend in resendMails)
+                {
+                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Resend Redemption", "data");
+                    resend.SetAsDeliveredSuccessful();
+                    //_db.Update(resend);
+                    _db.SaveChanges();
+
+                    return RedirectToAction(nameof(SendEmailList), "Redemption", new {@filterName = RedemptionProcess.UndeliverSuccessful});
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+
+            return View();
+        }
+
         [HttpGet]
         [Authorize]
         [Route("/Redemption/ConfirmToStore", Name = "confirmToStore")]
@@ -267,6 +301,14 @@ namespace EMRedemption.Controllers
             {
                 return View();
             }
+        }
+
+        private List<Reward> GetAvailableRewards(string rewardCode)
+        {
+            return _db.Rewards
+                    .Where(rw => rw.Code == rewardCode)
+                    .OrderBy(rw => rw.LotNo)
+                    .ToList();
         }
 
         [HttpGet]
@@ -296,8 +338,7 @@ namespace EMRedemption.Controllers
                 item.RewardName = g.Name;
                 item.Quantity = g.Quantity;
 
-                item.Available = _db.Rewards.Where(rw => rw.RedemptionItemId == null)
-                                            .Where(rw=> rw.Code.Equals(item.RewardCode))
+                item.Available = _db.Rewards.Where(rw=> rw.Code.Equals(item.RewardCode))
                                             .Sum(rw => rw.Quantity);
 
                 item.Balance = item.Available - item.Quantity;
@@ -309,15 +350,6 @@ namespace EMRedemption.Controllers
             model.ProcessRewards.AddRange(items.OrderBy(i=> i.RewardCode));
             
             return View(model);
-        }
-
-        private List<Reward> GetAvailableRewards(string rewardCode)
-        {
-            return _db.Rewards
-                    .Where(rw => rw.Code == rewardCode)
-                    .Where(rw => rw.RedemptionItemId == null)
-                    .OrderBy(rw => rw.LotNo)
-                    .ToList();
         }
 
         [HttpPost]
@@ -361,7 +393,7 @@ namespace EMRedemption.Controllers
                     _db.SaveChanges();
                 }
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ProcessRewardList));
             }
             catch (Exception)
             {

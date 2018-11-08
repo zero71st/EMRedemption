@@ -1,4 +1,4 @@
-﻿
+﻿@model SendEmailViewModel
 @{
     ViewData["Title"] = "SendEmail";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -9,8 +9,10 @@
 <hr/>
 <div class="jumbotron">
     <form asp-action="SendEmail" method="post">
+        <h3>Send Date: @Model.SendDateTime</h3>
+        <h3>Total Redemptions: @Model.TotalRedemptions</h3>
         <button type="submit" class="btn btn-primary">Confirm</button>
-        <a asp-action="SendEmailList" class="btn btn-primary">Cancel</a>
+        <a asp-action="SendEmailList" asp-route-filterName="@(RedemptionProcess.Processed)" class="btn btn-primary">Cancel</a>
     </form>
 </div>
 

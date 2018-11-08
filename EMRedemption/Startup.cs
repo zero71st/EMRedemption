@@ -39,7 +39,7 @@ namespace EMRedemption
                 .AddDefaultTokenProviders();
 
             // Add application services.
-            services.AddTransient<IEmailSender, EmailSender>();
+            services.AddTransient<IEmailSender, dzEmailSernder>();
 
             services.AddMvc();
         }

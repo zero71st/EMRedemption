@@ -1,0 +1,15 @@
+﻿@model SendEmailViewModel
+@{
+    ViewData["Title"] = "ResendEmail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Resend Email</h2>
+<hr />
+<div class="jumbotron">
+    <form asp-action="ResendEmail" method="post">
+        <h3>Resend Date: @Model.SendDateTime</h3>
+        <h3>Total Redemptions: @Model.TotalRedemptions</h3>
+        <button type="submit" class="btn btn-primary">Confirm</button>
+        <a asp-action="SendEmailList" asp-route-filterName="@(RedemptionProcess.UndeliverSuccessful)" class="btn btn-primary">Cancel</a>
+    </form>
+</div>
