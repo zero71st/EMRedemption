@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EMRedemption.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,11 +9,11 @@ namespace EMRedemption.Models.RedemptionViewModels
     public class ProcessRewardListViewModel
     {
         public int RedemptionTotal { get; set; }
-        public List<ProcessRewardViewModel> ProcessRewards { get; set; }
+        public List<Redemption> Redemptions { get; set; }
 
         public ProcessRewardListViewModel()
         {
-            ProcessRewards = new List<ProcessRewardViewModel>();
+            Redemptions = new List<Redemption>();
         }
     }
 }

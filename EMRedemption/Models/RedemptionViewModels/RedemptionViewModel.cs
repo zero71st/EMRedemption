@@ -40,6 +40,8 @@ namespace EMRedemption.Models.RedemptionViewModels
         [DisplayName("Fetch Date Time")]
         public DateTime FetchDateTime { get; set; }
 
+        public bool IsRewardEnough { get; set; }
+
         public List<RedemptionItemViewModel> RedemptionItems { get; set; }
 
         public string Status { get; set; }

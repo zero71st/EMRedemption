@@ -11,46 +11,52 @@
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ProcessRewards">
         
-        <h3>Total Redemption(s): @Model.RedemptionTotal</h3>
-        <hr />
         <table class="table">
             <thead>
                 <tr>
                     <th>
-                        Reward Code
+                        Trasaction ID
                     </th>
                     <th>
-                        Reward Name
+                        Retailer Name
                     </th>
                     <th>
-                        Quantity
+                        Email Address
                     </th>
                     <th>
-                        Available
+                        Redeem Date
                     </th>
                     <th>
-                        Balance
+                        Code Deliver
                     </th>
                 </tr>
             </thead>
             <tbody>
-                @foreach(var item in Model.ProcessRewards){
+                @foreach(var item in Model.Redemptions){
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RewardCode)
+                        @Html.DisplayFor(modelItem => item.TransactionID)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RewardName)
+                        @Html.DisplayFor(modelItem => item.RetailerName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Quantity)
+                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Available)
+                        @Html.DisplayFor(modelItem => item.RedeemDateTime)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.Balance)
+                        @if(item.Status == EMRedemption.Entities.RedemptionStatus.Processed)
+                        {
+                            <span class="label label-success">Ok</span>
+                        }
+                        else
+                        {
+                            <span class="label label-danger">Out of stock</span>
+                        }
                     </td>
+                    <td>
                 </tr>
                 }
             </tbody>
