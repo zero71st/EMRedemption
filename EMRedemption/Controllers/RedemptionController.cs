@@ -61,7 +61,11 @@ namespace EMRedemption.Controllers
             if(!String.IsNullOrEmpty(keyword))
             {
                 redemptions = redemptions
-                             .Where(r => r.RetailerName.Contains(keyword));
+                             .Where(r => r.TransactionID.Contains(keyword) ||
+                                         r.RetailerName.Contains(keyword) ||
+                                         r.RetailerStoreName.Contains(keyword) ||
+                                         r.RetailerPhoneNumber.Contains(keyword) ||
+                                         r.RetailerEmailAddress.Contains(keyword));
             }
 
             if (String.IsNullOrEmpty(filterName))
@@ -97,15 +101,19 @@ namespace EMRedemption.Controllers
         [Authorize]
         public IActionResult ProcessRewardList(string keyword)
         {
-           
+
             IEnumerable<Redemption> redemptions = _db.Redemptions
-                                                  .Where(r=> r.Status == RedemptionStatus.Unprocess)
-                                                  .Include(r => r.RedemptionItems).AsEnumerable();
+                                                  .Include(r => r.RedemptionItems)
+                                                  .Where(r => r.Status == RedemptionStatus.Unprocess)
+                                                  .AsEnumerable();
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                redemptions = redemptions
-                             .Where(r => r.RetailerName.Contains(keyword));
+                redemptions = redemptions.Where(r => r.TransactionID.Contains(keyword) ||
+                                                     r.RetailerName.Contains(keyword) ||
+                                                     r.RetailerStoreName.Contains(keyword) ||
+                                                     r.RetailerPhoneNumber.Contains(keyword) ||
+                                                     r.RetailerEmailAddress.Contains(keyword));
             }
 
             redemptions = redemptions.ToList();
@@ -129,12 +137,14 @@ namespace EMRedemption.Controllers
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                redemptions = redemptions
-                             .Where(r => r.RetailerName.Contains(keyword));
+                               redemptions = _db.Redemptions
+                                                .Include(r => r.RedemptionItems)
+                                                .Where(r => r.TransactionID.Contains(keyword) ||
+                                                            r.RetailerName.Contains(keyword) ||
+                                                            r.RetailerStoreName.Contains(keyword) ||
+                                                            r.RetailerPhoneNumber.Contains(keyword) ||
+                                                            r.RetailerEmailAddress.Contains(keyword)).AsEnumerable();
             }
-
-            if (filterName.Equals(RedemptionProcess.Unprocess))
-                redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Unprocess);
 
             if (filterName.Equals(RedemptionProcess.Processed))
                 redemptions = redemptions.Where(r => r.Status == RedemptionStatus.Processed);
@@ -352,8 +362,8 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-        [HttpPost]
         [Authorize]
+        [HttpPost]
         public IActionResult ProcessRewards(string dummy)
         {
             try

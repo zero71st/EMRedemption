@@ -6,7 +6,7 @@
 
 @if (Model.FilterName.Equals(RedemptionProcess.Processed))
 {
-    <h3>CODE PROCESS</h3>
+    <h3>Code Process</h3>
 }
 else if (Model.FilterName.Equals(RedemptionProcess.DeliveredSuccessful))
 {
@@ -23,7 +23,7 @@ else if (Model.FilterName.Equals(RedemptionProcess.UndeliverSuccessful))
     <div class="form-group">
         <input type="hidden" asp-for="FilterName" />
         <label class="sr-only">Search redemption info</label>
-        <input asp-for="Keyword" type="text" class="form-control" placeholder="Search...">
+        <input asp-for="Keyword" type="text" class="form-control" placeholder="Search by redemption info.">
     </div>
     <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
 </form>
@@ -42,7 +42,7 @@ else
     {
         <p>
             <a asp-action="SendEmail" class="btn btn-primary">
-                <span class="glyphicon glyphicon-cog" aria-hidden="true"></span>Send Email
+                <span class="glyphicon glyphicon-send" aria-hidden="true"></span>Send Email
             </a>
         </p>
     }
@@ -104,10 +104,10 @@ else
                         @Html.DisplayFor(modelItem => item.RetailerStoreName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+                        @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
+                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.RedeemDateTime)

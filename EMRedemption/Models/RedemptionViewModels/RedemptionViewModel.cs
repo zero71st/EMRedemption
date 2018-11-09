@@ -42,6 +42,8 @@ namespace EMRedemption.Models.RedemptionViewModels
 
         public List<RedemptionItemViewModel> RedemptionItems { get; set; }
 
+        public string Status { get; set; }
+
         public RedemptionViewModel()
         {
             RedemptionItems = new List<RedemptionItemViewModel>();
@@ -57,6 +59,22 @@ namespace EMRedemption.Models.RedemptionViewModels
             RedeemDateTime = redemption.RedeemDateTime;
             FetchBy = redemption.FetchBy;
             FetchDateTime = redemption.FetchDateTime;
+
+            switch (redemption.Status)
+            {
+                case RedemptionStatus.Unprocess:
+                    Status = RedemptionProcess.Unprocess;
+                    break;
+                case RedemptionStatus.Processed:
+                    Status = RedemptionProcess.Processed;
+                    break;
+                case RedemptionStatus.DeliveredSuccessful:
+                    Status = RedemptionProcess.DeliveredSuccessful;
+                    break;
+                case RedemptionStatus.UndeliverSuccessful:
+                    Status = RedemptionProcess.UndeliverSuccessful;
+                    break;
+            }
 
             int i = 0;
             RedemptionItems.AddRange(redemption.RedemptionItems.Select(ri =>
