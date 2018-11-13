@@ -19,6 +19,7 @@ using EMRedemption.Models;
 using System.Net.Mail;
 using System.Net;
 using EMRedemption.Services;
+using Microsoft.Extensions.Logging;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -30,14 +31,17 @@ namespace EMRedemption.Controllers
 
         private readonly ApplicationDbContext _db;
         private readonly IEmailSender _mailSender;
+        private readonly ILogger<RedemptionController> _logger;
 
         public RedemptionController(ApplicationDbContext db,
                                     IConfiguration configuraton,
-                                    IEmailSender sender)
+                                    IEmailSender sender,
+                                    ILogger<RedemptionController> logger)
         {
             _db = db;
             Configuration = configuraton;
             _mailSender = sender;
+            _logger = logger;
         }
 
         [Authorize]
@@ -305,6 +309,8 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
+                _logger.LogInformation("Load redemptions on {0} into database total: {1} items",model.RedeemDate,redemptions.Count);
+
                 return RedirectToAction(nameof(Retrieve));
             }
             catch (Exception)
@@ -476,6 +482,8 @@ namespace EMRedemption.Controllers
 
             int j = 0;
             var models = redemptions.Select(r => { j++; return new RedemptionViewModel(j, r); }).ToList<RedemptionViewModel>();
+
+            _logger.LogInformation("List redemption from API");
 
             return View(models);
         }
