@@ -22,13 +22,13 @@ namespace EMRedemption
             var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
-                logger.Debug("init main");
+               // logger.Debug("init main");
                 BuildWebHost(args).Run();
             }
             catch (Exception ex)
             {
                 //NLog: catch setup errors
-                logger.Error(ex, "Stopped program because of exception");
+                //logger.Error(ex, "Stopped program because of exception");
                 throw;
             }
             finally
@@ -46,7 +46,7 @@ namespace EMRedemption
                 .ConfigureLogging(logging =>
                 {
                     logging.ClearProviders();
-                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+                    logging.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Information);
                 })
                .UseNLog()  // NLog: setup NLog for Dependency injection
                .Build();
