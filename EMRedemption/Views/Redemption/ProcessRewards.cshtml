@@ -1,4 +1,5 @@
-﻿@model ProcessRewardListViewModel
+﻿@using EMRedemption.Entities
+@model IList<ProcessRewardViewModel>
 @{
     ViewData["Title"] = "ProcessRewards";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -10,7 +11,6 @@
 <hr />
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ProcessRewards">
-        
         <table class="table">
             <thead>
                 <tr>
@@ -32,33 +32,43 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach(var item in Model.Redemptions){
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TransactionID)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RetailerName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RedeemDateTime)
-                    </td>
-                    <td>
-                        @if(item.Status == EMRedemption.Entities.RedemptionStatus.Processed)
-                        {
-                            <span class="label label-success">Ok</span>
-                        }
-                        else
-                        {
-                            <span class="label label-danger">Out of stock</span>
-                        }
-                    </td>
-                    <td>
-                </tr>
+
+                @foreach (var item in (IList<Redemption>)ViewData["Redemptions"])
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TransactionID)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RetailerName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RedeemDateTime)
+                        </td>
+                        <td>
+                            @if (item.Status == EMRedemption.Entities.RedemptionStatus.Processed)
+                            {
+                                <span class="label label-success">Ok</span>
+                            }
+                            else
+                            {
+                                <span class="label label-danger">Out of stock</span>
+                            }
+                        </td>
+                        <td>
+                    </tr>
                 }
+                @for (var i = 0; i < Model.Count; i++)
+                {
+                    @Html.HiddenFor(m => m[i].RewardId);
+                    @Html.HiddenFor(m => m[i].RedemptionId);
+                    @Html.HiddenFor(m => m[i].RedemptionItemId);
+                    @Html.HiddenFor(m => m[i].Quantity);
+                }
+
             </tbody>
         </table>
         <button type="submit" class="btn btn-primary">Confirm</button>

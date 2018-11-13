@@ -7,10 +7,9 @@ namespace EMRedemption.Models.RedemptionViewModels
 {
     public class ProcessRewardViewModel
     {
-        public string RewardCode { get; set; }
-        public string RewardName { get; set; }
+        public int RewardId { get; set; }
+        public int RedemptionId { get; set; }
+        public int RedemptionItemId { get; set; }
         public int Quantity { get; set; }
-        public int Available { get; set; }
-        public int Balance { get; set; }
     }
 }

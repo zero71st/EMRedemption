@@ -1,4 +1,5 @@
 ﻿using EMRedemption.Entities;
+using EMRedemption.Models.RewardViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -304,7 +304,7 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Retrieve));
             }
             catch (Exception)
             {
@@ -326,18 +326,7 @@ namespace EMRedemption.Controllers
         [Route("/Redemption/ProcessRewards", Name = "processRewards")]
         public IActionResult ProcessRewards()
         {
-            //var itemGroup =     _db.RedemptionItems.Include(i=> i.Redemption)
-            //                     .Where(r => r.Redemption.Status == RedemptionStatus.Unprocess)
-            //                     .GroupBy(g=> g.RewardCode)
-            //                     .Select(g=> new
-            //                     {
-            //                         Code = g.FirstOrDefault().RewardCode,
-            //                         Name = g.FirstOrDefault().RewardName,
-            //                         Quantity = g.Sum(i=> i.Quantity),
-            //                     })
-            //                     .ToList();
-
-            var model = new ProcessRewardListViewModel();
+            IList<ProcessRewardViewModel> models = new List<ProcessRewardViewModel>();
 
             var stockRewards = GetAvailableRewards();
             var redemptions =   _db.Redemptions
@@ -347,9 +336,6 @@ namespace EMRedemption.Controllers
 
             foreach (var redemption in redemptions)
             {
-                // Process only transaction that reward enough
-                //if (!IsRewardEnough(redemption))
-                //    continue;
                 bool skip = false;
                 foreach (var item in redemption.RedemptionItems)
                 {
@@ -359,23 +345,42 @@ namespace EMRedemption.Controllers
                         skip = true;
                 }
 
-                if (skip)
-                    continue;
+                if (skip) continue;
 
-                foreach (var item in redemption.RedemptionItems)
+                foreach (var redemptionItem in redemption.RedemptionItems)
                 {
-                    var rewards = stockRewards.Where(rw => rw.Code.Equals(item.RewardCode)).OrderBy(rw=> rw.LotNo);
+                    var rewards = stockRewards.Where(rw => rw.Code.Equals(redemptionItem.RewardCode)).OrderBy(rw=> rw.LotNo);
 
                     // Reward quatity must >= item.Quantity
-                    if (rewards.Sum(rw => rw.Quantity) >= item.Quantity)
+                    if (redemptionItem.Quantity <= rewards.Sum(rw => rw.Quantity))
                     {
-                        for (int i = 1; i <= item.Quantity; i++)
+                        foreach (var reward in rewards)
                         {
-                            foreach (var reward in rewards)
+                            if (redemptionItem.Quantity == 0)
+                                break;
+
+                            if (redemptionItem.Quantity > reward.Quantity)
                             {
-                                reward.RedemptionItemId = item.Id;
-                                reward.Quantity = reward.Quantity - 1;
+                                // 3=3-1;
+                                // 2=2-1;
+                                // 1=1-1
+                                // 0
+
+                                redemptionItem.Quantity = redemptionItem.Quantity - reward.Quantity;
+                                reward.Quantity = 0;
                             }
+                            else // RedemptionItem.Quantity <= reward.Quantity
+                            {
+                                // 5=5-3
+                                // 3=3-3
+                                // 0
+                                reward.Quantity = reward.Quantity - redemptionItem.Quantity;
+                                redemptionItem.Quantity = 0;
+                            }
+
+                            redemptionItem.Rewards.Add(reward);
+
+                            models.Add(new ProcessRewardViewModel { RewardId = reward.Id, Quantity = reward.Quantity, RedemptionItemId = redemptionItem.Id, RedemptionId = redemption.Id, });
                         }
                     }
                 }
@@ -383,63 +388,52 @@ namespace EMRedemption.Controllers
                 redemption.SetAsProcessed();
             }
 
-            model.Redemptions.AddRange(redemptions);
+            //Show summary for user
+            ViewData["Redemptions"] = redemptions;
 
-            //foreach (var g in itemGroup)
-            //{
-            //    var item = new ProcessRewardViewModel();
-            //    item.RewardCode = g.Code;
-            //    item.RewardName = g.Name;
-            //    item.Quantity = g.Quantity;
-
-            //    item.Available = _db.Rewards.Where(rw=> rw.Code.Equals(item.RewardCode))
-            //                                .Sum(rw => rw.Quantity);
-
-            //    item.Balance = item.Available - item.Quantity;
-
-            //    items.Add(item);
-            //}
-
-            //model.RedemptionTotal = _db.Redemptions.Where(r => r.Status == RedemptionStatus.Unprocess).Count();
-            //model.ProcessRewards.AddRange(items.OrderBy(i=> i.RewardCode));
-            
-            return View(model);
+            return View(models);
         }
 
         [Authorize]
         [HttpPost]
-        public IActionResult ProcessRewards(ProcessRewardListViewModel model)
+        public IActionResult ProcessRewards(IList<ProcessRewardViewModel> models)
         {
             try
             {
-                foreach (var redemption in model.Redemptions.Where(r=> r.Status == RedemptionStatus.Processed))
+                using (var trasaction = _db.Database.BeginTransaction())
                 {
-                    var update = _db.Redemptions.Find(redemption.Id);
-                    if(update != null)
-                    {
-                        foreach (var item in update.RedemptionItems)
-                        {
-                            var reward = _db.Rewards.Where(rw => rw.Code.Equals(item.RewardCode) && rw.Quantity > 0).OrderBy(c => c.LotNo).FirstOrDefault();
+                    var redemptions = models.GroupBy(r => r.RedemptionId);
 
-                            //foreach (var rw in rewards)
-                            //{
-                            //    rw.Quantity = rw.Quantity - item.Quantity;
-                            //    if (rw.Quantity == 0)
-                            //        break;
-                            //}
-                            //_db.Update(rewards);
-                            //_db.SaveChanges();
+                    foreach (var redemption in redemptions)
+                    {
+                        var redemptionToUpdate = _db.Redemptions.Find(redemption.Key);
+
+                        if (redemptionToUpdate != null)
+                        {
+                            foreach (var model in redemption)
+                            {
+                                var rewardToUpdate = _db.Rewards.Find(model.RewardId);
+
+                                rewardToUpdate.RedemptionItemId = model.RedemptionItemId;
+                                rewardToUpdate.Quantity = model.Quantity;
+
+                                _db.Update(rewardToUpdate);
+                                _db.SaveChanges();
+                            }
+
+                            redemptionToUpdate.SetAsProcessed();
+                            _db.SaveChanges();
                         }
-                        update.SetAsProcessed();
-                        _db.SaveChanges();
                     }
+
+                    trasaction.Commit();
                 }
 
                 return RedirectToAction(nameof(ProcessRewardList));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return View();
+                return View(ex);
             }
         }
 
