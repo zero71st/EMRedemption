@@ -179,8 +179,8 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize]
         public IActionResult SendEmail(int id)
         {
             try
@@ -227,8 +227,8 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize]
         public IActionResult ChangeStatus(int id,RedemptionViewModel model)
         {
             try
@@ -259,8 +259,8 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize]
         public IActionResult ResendEmail(int id)
         {
             var resendMails = _db.Redemptions.Where(c => c.Status == RedemptionStatus.UndeliverSuccessful).ToList();
@@ -296,6 +296,7 @@ namespace EMRedemption.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> ConfirmToStore([Bind("RedeemDate")]ConfirmToStoreViewModel model)
         {
             try
@@ -321,8 +322,8 @@ namespace EMRedemption.Controllers
                       .ToList();
         }
 
-        [Authorize]
         [HttpGet]
+        [Authorize]
         [Route("/Redemption/ProcessRewards", Name = "processRewards")]
         public IActionResult ProcessRewards()
         {
@@ -394,8 +395,8 @@ namespace EMRedemption.Controllers
             return View(models);
         }
 
-        [Authorize]
         [HttpPost]
+        [Authorize]
         public IActionResult ProcessRewards(IList<ProcessRewardViewModel> models)
         {
             try

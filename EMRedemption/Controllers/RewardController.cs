@@ -93,6 +93,8 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        [Authorize]
         public ActionResult Create()
         {
             var model = new RewardViewModel();
@@ -102,8 +104,8 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
-        // POST: Coupon/Create
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")] RewardViewModel model)
         {
@@ -132,13 +134,8 @@ namespace EMRedemption.Controllers
             }
         }
 
-        // GET: Coupon/Details/5
-        public ActionResult Details(int id)
-        {
-            return View();
-        }
-
         [HttpGet]
+        [Authorize]
         public ActionResult Edit(int id)
         {
             var reward = _db.Rewards.Find(id);
@@ -152,6 +149,7 @@ namespace EMRedemption.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
         {
@@ -185,29 +183,6 @@ namespace EMRedemption.Controllers
             {
                 throw ex;
                 //return View(ex);
-            }
-        }
-
-        // GET: Coupon/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: Coupon/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
-
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
             }
         }
     }
