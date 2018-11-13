@@ -8,15 +8,6 @@
 <h3>MANAGE REWARDS</h3>
 <hr />
 
-<p>
-    <a class="btn btn-default" asp-action="Create">
-        <span class="glyphicon glyphicon-plus"></span> New
-    </a>
-
-    <a class="btn btn-default" asp-action="Import">
-        <span class="glyphicon glyphicon-import"></span>Import
-    </a>
-</p>
 
 <form asp-controller="Reward" asp-action="Index" method="get" class="form-inline">
     <div class="form-group">
@@ -29,17 +20,25 @@
 
     <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
 </form>
+<hr/>
+<p>
+    <a class="btn btn-default" asp-action="Create">
+        <span class="glyphicon glyphicon-plus"></span> New
+    </a>
+
+    <a class="btn btn-default" asp-action="Import">
+        <span class="glyphicon glyphicon-import"></span>Import
+    </a>
+</p>
 
 @if (Model.Rewards.Count == 0)
 {
-    <hr />
     <p>
         <div class="alert alert-warning" role="alert">Not found reward item!</div>
     </p>
 }
 else
 {
-    <hr />
     @if (Model.FilterName.Equals(RewardStock.Avalible))
     {
         <p>
@@ -112,6 +111,7 @@ else
                         @Html.DisplayFor(modelItem => item.Code)
                     </td>
                     <td>
+                        @*<span class="label label-default">******</span>*@
                         @Html.DisplayFor(modelItem => item.SerialNo)
                     </td>
                     <td>

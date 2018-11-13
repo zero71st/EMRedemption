@@ -437,7 +437,6 @@ namespace EMRedemption.Controllers
             }
         }
 
-
         private bool IsRewardEnough(Redemption redemption)
         {
             foreach (var item in redemption.RedemptionItems)

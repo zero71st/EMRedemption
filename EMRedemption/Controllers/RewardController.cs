@@ -11,16 +11,20 @@ using Microsoft.AspNetCore.Identity;
 using EMRedemption.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using EMRedemption.Services;
 
 namespace EMRedemption.Controllers
 {
     public class RewardController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly ITDesCryptoService _cryptoSerivce;
+        private const string KEY = "111111111111111101020304050607081111111111111111";
 
-        public RewardController(ApplicationDbContext db)
+        public RewardController(ApplicationDbContext db,ITDesCryptoService cryptoService)
         {
             _db = db;
+            _cryptoSerivce = cryptoService;
         }
 
         [HttpGet]
@@ -108,7 +112,14 @@ namespace EMRedemption.Controllers
 
             try
             {
-                Reward reward = new Reward(model.Code,model.SerialNo, model.Description,model.RewardType, model.ExpireDate,model.Quantity,model.LotNo,User.Identity.Name);
+                Reward reward = new Reward(model.Code,
+                                           _cryptoSerivce.Encrypt(model.SerialNo), 
+                                           model.Description,
+                                           model.RewardType,
+                                           model.ExpireDate,
+                                           model.Quantity,
+                                           model.LotNo,
+                                           User.Identity.Name);
 
                 _db.Add(reward);
                 _db.SaveChanges();
@@ -135,6 +146,7 @@ namespace EMRedemption.Controllers
                 return NotFound();
 
             RewardViewModel model = new RewardViewModel(reward);
+            model.SerialNo = _cryptoSerivce.Decrypt(reward.SerialNo);
             
             return View(model);
         }
@@ -152,7 +164,7 @@ namespace EMRedemption.Controllers
                 if (reward != null)
                 {
                     reward.Code = model.Code;
-                    reward.SerialNo = model.SerialNo;
+                    reward.SerialNo = _cryptoSerivce.Encrypt(model.SerialNo);
                     reward.Description = model.Description;
                     reward.RewardType = model.RewardType;
                     reward.ExpireDate = model.ExpireDate;
@@ -169,9 +181,10 @@ namespace EMRedemption.Controllers
                     return View();
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                return View();
+                throw ex;
+                //return View(ex);
             }
         }
 

@@ -40,6 +40,7 @@ namespace EMRedemption
 
             // Add application services.
             services.AddTransient<IEmailSender, dzEmailSernder>();
+            services.AddTransient<ITDesCryptoService, TDescyptoService>();
 
             services.AddMvc();
         }
