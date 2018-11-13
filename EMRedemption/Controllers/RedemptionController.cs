@@ -104,7 +104,6 @@ namespace EMRedemption.Controllers
         [Authorize]
         public IActionResult ProcessRewardList(string keyword)
         {
-
             IEnumerable<Redemption> redemptions = _db.Redemptions
                                                   .Include(r => r.RedemptionItems)
                                                   .Where(r => r.Status == RedemptionStatus.Unprocess)
@@ -309,7 +308,7 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
-                _logger.LogInformation("Load redemptions on {0} into database total: {1} items",model.RedeemDate,redemptions.Count);
+                _logger.LogWarning("Load redemptions on {0} into database total: {1} items",model.RedeemDate,redemptions.Count);
 
                 return RedirectToAction(nameof(Retrieve));
             }
@@ -460,6 +459,11 @@ namespace EMRedemption.Controllers
         [Authorize]
         public async Task<IActionResult> Retrieve(string redeemDate)
         {
+            _logger.LogInformation("Info");
+            _logger.LogWarning("Warning");
+            _logger.LogError("Write Error");
+            _logger.LogCritical("Write Critical");
+
             ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");  
 
             if (String.IsNullOrEmpty(redeemDate))
