@@ -16,6 +16,7 @@ namespace EMRedemption.Data
         public DbSet<Reward> Rewards { get; set; }
         public DbSet<Redemption> Redemptions { get; set; }
         public DbSet<RedemptionItem> RedemptionItems { get; set; }
+        public DbSet<AppLog> AppLogs { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
