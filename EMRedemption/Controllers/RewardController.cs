@@ -129,18 +129,18 @@ namespace EMRedemption.Controllers
 
                     _db.Add(reward);
                     _db.SaveChanges();
-                    _logger.LogInformation("Reward code: {0} was saved by {1}",reward.Code,User.Identity.Name);
+                    _logger.LogInformation("Create reward code {0} successful by {1} ",reward.Code,User.Identity.Name);
                     return RedirectToAction(nameof(Index)); 
                 }
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogError("Try to save reward by {0} with problem", User.Identity.Name);
+                _logger.LogError("Try to save reward by {0} with problem {1}", User.Identity.Name,ex.Message);
                 ModelState.AddModelError("", "Can not save reward!");
             }
             catch (Exception ex)
             {
-                _logger.LogError("Try to save reward by {0} with problem"+ex.Message, User.Identity.Name);
+                _logger.LogError("Try to save reward by {0} with problem {1}", User.Identity.Name,ex.Message);
                 ModelState.AddModelError("", "Can not save reward!");
             }
 
@@ -166,14 +166,14 @@ namespace EMRedemption.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (id != model.Id)
+                return NotFound();
 
-            try
+            if (ModelState.IsValid)
             {
-                var reward = _db.Rewards.Find(id);
-                if (reward != null)
+                try
                 {
+                    var reward = _db.Rewards.Find(id);
                     reward.Code = model.Code;
                     reward.SerialNo = _cryptoSerivce.Encrypt(model.SerialNo);
                     reward.Description = model.Description;
@@ -182,21 +182,20 @@ namespace EMRedemption.Controllers
                     reward.Quantity = model.Quantity;
                     reward.LotNo = model.LotNo.ToString("yyyy-MM-dd");
 
-                    _db.Update(reward);
                     _db.SaveChanges();
 
+                    _logger.LogInformation("Update reward code: {0} successful by {1}",reward.Code, User.Identity.Name);
                     return RedirectToAction(nameof(Index));
+
                 }
-                else
+                catch (Exception ex)
                 {
-                    return View();
-                }
+                    _logger.LogError("Can not update reward! by {0} with problem {1}", User.Identity.Name, ex.Message);
+                    ModelState.AddModelError("", "Can not update reward!");
+                } 
             }
-            catch(Exception ex)
-            {
-                throw ex;
-                //return View(ex);
-            }
+
+            return View(model);
         }
     }
 }
