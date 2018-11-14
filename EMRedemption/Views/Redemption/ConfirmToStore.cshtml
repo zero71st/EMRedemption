@@ -9,6 +9,7 @@
 <hr />
 <div class="jumbotron">
     <form asp-controller="Redemption" asp-action="ConfirmToStore">
+        <div asp-validation-summary="All" class="text-danger"></div>
         <div class="jumbotron">
             <div class="form-group">
                 <label asp-for="RedeemDate" class="control-label"></label>

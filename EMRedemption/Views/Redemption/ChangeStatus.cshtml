@@ -7,7 +7,7 @@
 <hr />
 <div class="jumbotron">
     <form asp-action="ChangeStatus">
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div asp-validation-summary="All" class="text-danger"></div>
         <input asp-for="Id" hidden="hidden" />
         <div class="form-group">
             <label asp-for="TransactionID" class="control-label"></label>

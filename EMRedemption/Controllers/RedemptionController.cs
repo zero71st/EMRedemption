@@ -184,37 +184,35 @@ namespace EMRedemption.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public IActionResult SendEmail(int id)
         {
-            try
-            {
-                var redemptions = _db.Redemptions
-                                     .Where(r => r.Status == RedemptionStatus.Processed)
-                                     .ToList();
+            var redemptions = _db.Redemptions
+                                 .Where(r => r.Status == RedemptionStatus.Processed)
+                                 .ToList();
 
-                if (redemptions.Count > 0)
+            if (redemptions.Count > 0)
+            {
+
+                foreach (var redemption in redemptions)
                 {
                     try
                     {
-                        foreach (var redemption in redemptions)
-                        {
-                            _mailSender.SendEmailAsync(redemption.RetailerEmailAddress,"Inform Code","Message");
-                            redemption.SetAsDeliveredSuccessful();
-                            _db.Update(redemption);
-                            _db.SaveChanges();
-                        }
+                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "Inform Code", "Message");
+
+                        redemption.SetAsDeliveredSuccessful();
+                        _db.Update(redemption);
+                        _db.SaveChanges();
+
+                        _logger.LogInformation("Transaction ID: {0} was sent E-mail by {1} successful", redemption.TransactionID, User.Identity.Name);
                     }
                     catch (Exception ex)
                     {
-                        throw ex;
+                        _logger.LogError("Can not send E-mail to Transaction ID: {0} by {1} with problem {2}", redemption.TransactionID, User.Identity.Name, ex.Message);
                     }
-
-                    return RedirectToAction(nameof(SendEmailList), "Redemption", new { @filterName = RedemptionProcess.Processed });
                 }
-            }
-            catch (Exception)
-            {
-                return View();
+
+                return RedirectToAction(nameof(SendEmailList), "Redemption", new { @filterName = RedemptionProcess.Processed });
             }
 
             return View();
@@ -237,15 +235,18 @@ namespace EMRedemption.Controllers
             try
             {
                 var redemption = _db.Redemptions.Find(id);
-                redemption.SetAsUndeliverSuccessful();
 
+                redemption.SetAsUndeliverSuccessful();
                 _db.Update(redemption);
                 _db.SaveChanges();
 
+                _logger.LogInformation("Trasaction ID:{0} was changed status to delivered successful by {1}",redemption.TransactionID, User.Identity.Name);
                 return RedirectToAction(nameof(SendEmailList), new { @filterName = RedemptionProcess.DeliveredSuccessful });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError("Can not change status to delivered successful by {0} with problem {1}",User.Identity.Name,ex.Message);
+                ModelState.AddModelError("","Can not change status "+ex.Message);
                 return View();
             }
         }
@@ -264,26 +265,28 @@ namespace EMRedemption.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public IActionResult ResendEmail(int id)
         {
             var resendMails = _db.Redemptions.Where(c => c.Status == RedemptionStatus.UndeliverSuccessful).ToList();
-            try
+
+            foreach (var resend in resendMails)
             {
-                foreach (var resend in resendMails)
+                try
                 {
                     _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Resend Redemption", "data");
                     resend.SetAsDeliveredSuccessful();
                     _db.SaveChanges();
 
-                    return RedirectToAction(nameof(SendEmailList), "Redemption", new {@filterName = RedemptionProcess.UndeliverSuccessful});
+                    _logger.LogInformation("Trasaction ID:{0} was resend E-mail by {1} successful",resend.TransactionID,User.Identity.Name);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError("Can not resend Transaction ID:{0} by {1} with problem", resend.TransactionID, User.Identity.Name,ex.Message);
                 }
             }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
 
-            return View();
+            return RedirectToAction(nameof(SendEmailList), "Redemption", new { @filterName = RedemptionProcess.UndeliverSuccessful });
         }
 
         [HttpGet]
@@ -307,14 +310,16 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
-                _logger.LogWarning("Load redemptions on {0} into database total: {1} items",model.RedeemDate,redemptions.Count);
-
+                _logger.LogInformation("Load redemptions on {0} total {1} to database successful by {2}",model.RedeemDate,redemptions.Count,User.Identity.Name);
                 return RedirectToAction(nameof(Retrieve));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return View();
+                _logger.LogError("Can not save redemption on {0} to database by {1} with problem {2}",model.RedeemDate,User.Identity.Name,ex.Message);
+                ModelState.AddModelError("", "Can not save redemptions!");
             }
+
+            return View(model);
         }
 
         private IEnumerable<Reward> GetAvailableRewards()
@@ -401,6 +406,7 @@ namespace EMRedemption.Controllers
 
         [HttpPost]
         [Authorize]
+        [ValidateAntiForgeryToken]
         public IActionResult ProcessRewards(IList<ProcessRewardViewModel> models)
         {
             try
@@ -428,6 +434,8 @@ namespace EMRedemption.Controllers
 
                             redemptionToUpdate.SetAsProcessed();
                             _db.SaveChanges();
+
+                            _logger.LogInformation("Process reward to Trasacaction ID: {0} successful by {1}",redemptionToUpdate.TransactionID,User.Identity.Name);
                         }
                     }
 
@@ -438,8 +446,11 @@ namespace EMRedemption.Controllers
             }
             catch (Exception ex)
             {
-                return View(ex);
+                _logger.LogError("Can not process reward by {0} with problem {1}", User.Identity.Name,ex.Message);
+                ModelState.AddModelError("", "Can not process reward found problem " + ex.Message);
             }
+
+            return View(models);
         }
 
         private bool IsRewardEnough(Redemption redemption)
@@ -480,8 +491,6 @@ namespace EMRedemption.Controllers
 
             int j = 0;
             var models = redemptions.Select(r => { j++; return new RedemptionViewModel(j, r); }).ToList<RedemptionViewModel>();
-
-            _logger.LogInformation("List redemption from API");
 
             return View(models);
         }

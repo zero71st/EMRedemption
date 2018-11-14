@@ -7,6 +7,7 @@
 <hr />
 <div class="jumbotron">
     <form asp-action="ResendEmail" method="post">
+        <div asp-validation-summary="All" class="alert-danger"></div>
         <h3>Resend Date: @Model.SendDateTime</h3>
         <h3>Total Redemptions: @Model.TotalRedemptions</h3>
         <button type="submit" class="btn btn-primary">Confirm</button>
