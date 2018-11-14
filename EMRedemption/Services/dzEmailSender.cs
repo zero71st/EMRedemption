@@ -22,6 +22,7 @@ namespace EMRedemption.Services
             mail.To.Add(email);
             mail.Subject = subject;
             mail.Body = message;
+            mail.IsBodyHtml = true;
 
             client.Send(mail);
 

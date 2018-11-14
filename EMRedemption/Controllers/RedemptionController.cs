@@ -20,6 +20,7 @@ using System.Net.Mail;
 using System.Net;
 using EMRedemption.Services;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -31,16 +32,19 @@ namespace EMRedemption.Controllers
 
         private readonly ApplicationDbContext _db;
         private readonly IEmailSender _mailSender;
+        private readonly ITDesCryptoService _cryptoService;
         private readonly ILogger<RedemptionController> _logger;
 
         public RedemptionController(ApplicationDbContext db,
                                     IConfiguration configuraton,
                                     IEmailSender sender,
-                                    ILogger<RedemptionController> logger)
+                                    ILogger<RedemptionController> logger,
+                                    ITDesCryptoService cryptoService)
         {
             _db = db;
             Configuration = configuraton;
             _mailSender = sender;
+            _cryptoService = cryptoService;
             _logger = logger;
         }
 
@@ -188,17 +192,20 @@ namespace EMRedemption.Controllers
         public IActionResult SendEmail(int id)
         {
             var redemptions = _db.Redemptions
+                                 .Include(r => r.RedemptionItems)
+                                    .ThenInclude(ri=> ri.Rewards)
                                  .Where(r => r.Status == RedemptionStatus.Processed)
                                  .ToList();
 
             if (redemptions.Count > 0)
             {
-
                 foreach (var redemption in redemptions)
                 {
                     try
                     {
-                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "Inform Code", "Message");
+                        var body = CreateMailBody(redemption);
+
+                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "Inform Code", body.ToString());
 
                         redemption.SetAsDeliveredSuccessful();
                         _db.Update(redemption);
@@ -216,6 +223,28 @@ namespace EMRedemption.Controllers
             }
 
             return View();
+        }
+
+        private StringBuilder CreateMailBody(Redemption redemption)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("<h3>เรียน คุณ <b>" + redemption.RetailerName+"</b></h3>");
+
+            foreach (var item in redemption.RedemptionItems)
+            {
+                sb.Append("<p><h3>โค้ด:&nbsp" + item.RewardName+"&nbspจำนวน:&nbsp"+item.Quantity+ "&nbspรายการ</h3></p>");
+
+                foreach (var reward in item.Rewards)
+                {
+                    sb.Append("<p>โค้ด:<b>"+_cryptoService.Decrypt(reward.SerialNo)+"</b>ใช้ได้ถึง:"+reward.ExpireDate.ToString("dd/MM/yyyy")+"</p>");
+                }
+            }
+
+            sb.Append("<p></p><p>ขอแสดงความนับถือ</p>");
+            sb.Append("<p>Exxon Mobil</p>");
+
+            return sb;
         }
 
         [Authorize]
@@ -240,7 +269,7 @@ namespace EMRedemption.Controllers
                 _db.Update(redemption);
                 _db.SaveChanges();
 
-                _logger.LogInformation("Trasaction ID:{0} was changed status to delivered successful by {1}",redemption.TransactionID, User.Identity.Name);
+                _logger.LogInformation("Transaction ID:{0} was changed status to delivered successful by {1}",redemption.TransactionID, User.Identity.Name);
                 return RedirectToAction(nameof(SendEmailList), new { @filterName = RedemptionProcess.DeliveredSuccessful });
             }
             catch (Exception ex)
@@ -274,11 +303,13 @@ namespace EMRedemption.Controllers
             {
                 try
                 {
-                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Resend Redemption", "data");
+                    var body = CreateMailBody(resend);
+
+                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Resend Redemption",body.ToString());
                     resend.SetAsDeliveredSuccessful();
                     _db.SaveChanges();
 
-                    _logger.LogInformation("Trasaction ID:{0} was resend E-mail by {1} successful",resend.TransactionID,User.Identity.Name);
+                    _logger.LogInformation("Transaction ID:{0} was resend E-mail by {1} successful",resend.TransactionID,User.Identity.Name);
                 }
                 catch (Exception ex)
                 {
@@ -310,7 +341,7 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
-                _logger.LogInformation("Load redemptions on {0} total {1} to database successful by {2}",model.RedeemDate,redemptions.Count,User.Identity.Name);
+                _logger.LogInformation("Redemptions on:{0} quantity:{1} items were loaded to database by by {2} successful", model.RedeemDate,redemptions.Count,User.Identity.Name);
                 return RedirectToAction(nameof(Retrieve));
             }
             catch (Exception ex)
@@ -340,7 +371,7 @@ namespace EMRedemption.Controllers
 
             var stockRewards = GetAvailableRewards();
             var redemptions =   _db.Redemptions
-                                   .Include(r => r.RedemptionItems)
+                                   .Include("RedemptionItems.Rewards")
                                    .Where(r => r.Status == RedemptionStatus.Unprocess)
                                    .ToList();
 
@@ -435,7 +466,7 @@ namespace EMRedemption.Controllers
                             redemptionToUpdate.SetAsProcessed();
                             _db.SaveChanges();
 
-                            _logger.LogInformation("Process reward to Trasacaction ID: {0} successful by {1}",redemptionToUpdate.TransactionID,User.Identity.Name);
+                            _logger.LogInformation("Transaction ID:{0} was processed reward by {1} successful ", redemptionToUpdate.TransactionID,User.Identity.Name);
                         }
                     }
 
