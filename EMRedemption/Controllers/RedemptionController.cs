@@ -211,11 +211,11 @@ namespace EMRedemption.Controllers
                         _db.Update(redemption);
                         _db.SaveChanges();
 
-                        _logger.LogInformation("Transaction ID: {0} was sent E-mail by {1} successful", redemption.TransactionID, User.Identity.Name);
+                        _logger.LogInformation("Transaction ID:{0} was sent E-mail by {1} successful", redemption.TransactionID, User.Identity.Name);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError("Can not send E-mail to Transaction ID: {0} by {1} with problem {2}", redemption.TransactionID, User.Identity.Name, ex.Message);
+                        _logger.LogError("Can not send E-mail to Transaction ID:{0} by {1} with problem {2}", redemption.TransactionID, User.Identity.Name, ex.Message);
                     }
                 }
 
@@ -341,7 +341,7 @@ namespace EMRedemption.Controllers
                 _db.Redemptions.AddRange(redemptions);
                 _db.SaveChanges();
 
-                _logger.LogInformation("Redemptions on:{0} quantity:{1} items were loaded to database by by {2} successful", model.RedeemDate,redemptions.Count,User.Identity.Name);
+                _logger.LogInformation("Redemptions on:{0} quantity:{1} transactions were loaded to database by {2} successful", model.RedeemDate,redemptions.Count,User.Identity.Name);
                 return RedirectToAction(nameof(Retrieve));
             }
             catch (Exception ex)
@@ -357,8 +357,8 @@ namespace EMRedemption.Controllers
         {
             return _db.Rewards
                       .Where(rw=> rw.Quantity > 0)
-                      .OrderBy(rw => rw.LotNo)
-                      .ThenBy(rw => rw.Code)
+                      .OrderBy(rw => rw.Code)
+                      .ThenBy(rw => rw.LotNo)
                       .ToList();
         }
 
@@ -371,7 +371,8 @@ namespace EMRedemption.Controllers
 
             var stockRewards = GetAvailableRewards();
             var redemptions =   _db.Redemptions
-                                   .Include("RedemptionItems.Rewards")
+                                   .Include(r=> r.RedemptionItems)
+                                        .ThenInclude(ri=> ri.Rewards)
                                    .Where(r => r.Status == RedemptionStatus.Unprocess)
                                    .ToList();
 
@@ -380,7 +381,9 @@ namespace EMRedemption.Controllers
                 bool skip = false;
                 foreach (var item in redemption.RedemptionItems)
                 {
-                    int stock = stockRewards.Where(rw => rw.Code.Equals(item.RewardCode)).Sum(rw => rw.Quantity);
+                    int stock = stockRewards.Where(rw => rw.Code.Equals(item.RewardCode))
+                                            .Where(rw=> rw.Quantity > 0)
+                                            .Sum(rw => rw.Quantity);
 
                     if (item.Quantity > stock)
                         skip = true;
@@ -390,7 +393,10 @@ namespace EMRedemption.Controllers
 
                 foreach (var redemptionItem in redemption.RedemptionItems)
                 {
-                    var rewards = stockRewards.Where(rw => rw.Code.Equals(redemptionItem.RewardCode)).OrderBy(rw=> rw.LotNo);
+                    var rewards = stockRewards.Where(rw => rw.Code.Equals(redemptionItem.RewardCode))
+                                              .Where(rw => rw.Quantity > 0)
+                                              .OrderBy(rw => rw.LotNo)
+                                              .ToList();
 
                     // Reward quatity must >= item.Quantity
                     if (redemptionItem.Quantity <= rewards.Sum(rw => rw.Quantity))
@@ -419,7 +425,7 @@ namespace EMRedemption.Controllers
                                 redemptionItem.Quantity = 0;
                             }
 
-                            redemptionItem.Rewards.Add(reward);
+                           // redemptionItem.Rewards.Add(reward);
 
                             models.Add(new ProcessRewardViewModel { RewardId = reward.Id, Quantity = reward.Quantity, RedemptionItemId = redemptionItem.Id, RedemptionId = redemption.Id, });
                         }
