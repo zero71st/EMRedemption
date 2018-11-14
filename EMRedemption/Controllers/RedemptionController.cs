@@ -273,7 +273,6 @@ namespace EMRedemption.Controllers
                 {
                     _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Resend Redemption", "data");
                     resend.SetAsDeliveredSuccessful();
-                    //_db.Update(resend);
                     _db.SaveChanges();
 
                     return RedirectToAction(nameof(SendEmailList), "Redemption", new {@filterName = RedemptionProcess.UndeliverSuccessful});
@@ -459,11 +458,6 @@ namespace EMRedemption.Controllers
         [Authorize]
         public async Task<IActionResult> Retrieve(string redeemDate)
         {
-            _logger.LogInformation("Info");
-            _logger.LogWarning("Warning");
-            _logger.LogError("Write Error");
-            _logger.LogCritical("Write Critical");
-
             ViewBag.RedeemDate = DateTime.Now.Date.ToString("yyyy-MM-dd");  
 
             if (String.IsNullOrEmpty(redeemDate))

@@ -12,18 +12,23 @@ using EMRedemption.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using EMRedemption.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EMRedemption.Controllers
 {
     public class RewardController : Controller
     {
         private readonly ApplicationDbContext _db;
+        private readonly ILogger<RewardController> _logger;
         private readonly ITDesCryptoService _cryptoSerivce;
-        private const string KEY = "111111111111111101020304050607081111111111111111";
 
-        public RewardController(ApplicationDbContext db,ITDesCryptoService cryptoService)
+        public RewardController(ApplicationDbContext db,
+                                ILogger<RewardController> logger,
+                                ITDesCryptoService cryptoService)
         {
             _db = db;
+            _logger = logger;
             _cryptoSerivce = cryptoService;
         }
 
@@ -109,29 +114,37 @@ namespace EMRedemption.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")] RewardViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
             try
             {
-                Reward reward = new Reward(model.Code,
-                                           _cryptoSerivce.Encrypt(model.SerialNo), 
-                                           model.Description,
-                                           model.RewardType,
-                                           model.ExpireDate,
-                                           model.Quantity,
-                                           model.LotNo,
-                                           User.Identity.Name);
+                if (ModelState.IsValid)
+                {
+                    Reward reward = new Reward(model.Code,
+                                                       _cryptoSerivce.Encrypt(model.SerialNo),
+                                                       model.Description,
+                                                       model.RewardType,
+                                                       model.ExpireDate,
+                                                       model.Quantity,
+                                                       model.LotNo,
+                                                       User.Identity.Name);
 
-                _db.Add(reward);
-                _db.SaveChanges();
-
-                return RedirectToAction(nameof(Index));
+                    _db.Add(reward);
+                    _db.SaveChanges();
+                    _logger.LogInformation("Reward code: {0} was saved by {1}",reward.Code,User.Identity.Name);
+                    return RedirectToAction(nameof(Index)); 
+                }
             }
-            catch
+            catch (DbUpdateException ex)
             {
-                return View(model);
+                _logger.LogError("Try to save reward by {0} with problem", User.Identity.Name);
+                ModelState.AddModelError("", "Can not save reward!");
             }
+            catch (Exception ex)
+            {
+                _logger.LogError("Try to save reward by {0} with problem"+ex.Message, User.Identity.Name);
+                ModelState.AddModelError("", "Can not save reward!");
+            }
+
+            return View(model);
         }
 
         [HttpGet]
