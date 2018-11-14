@@ -205,7 +205,7 @@ namespace EMRedemption.Controllers
                     {
                         var body = CreateMailBody(redemption);
 
-                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "Inform Code", body.ToString());
+                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "Deliver Voucher Code", body.ToString());
 
                         redemption.SetAsDeliveredSuccessful();
                         _db.Update(redemption);
@@ -269,7 +269,7 @@ namespace EMRedemption.Controllers
                 _db.Update(redemption);
                 _db.SaveChanges();
 
-                _logger.LogInformation("Transaction ID:{0} was changed status to delivered successful by {1}",redemption.TransactionID, User.Identity.Name);
+                _logger.LogInformation("Transaction ID:{0} was changed status to delivered by {1} successful", redemption.TransactionID, User.Identity.Name);
                 return RedirectToAction(nameof(SendEmailList), new { @filterName = RedemptionProcess.DeliveredSuccessful });
             }
             catch (Exception ex)
@@ -305,7 +305,7 @@ namespace EMRedemption.Controllers
                 {
                     var body = CreateMailBody(resend);
 
-                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Resend Redemption",body.ToString());
+                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Re-deliver Voucher Code",body.ToString());
                     resend.SetAsDeliveredSuccessful();
                     _db.SaveChanges();
 
@@ -424,8 +424,6 @@ namespace EMRedemption.Controllers
                                 reward.Quantity = reward.Quantity - redemptionItem.Quantity;
                                 redemptionItem.Quantity = 0;
                             }
-
-                           // redemptionItem.Rewards.Add(reward);
 
                             models.Add(new ProcessRewardViewModel { RewardId = reward.Id, Quantity = reward.Quantity, RedemptionItemId = redemptionItem.Id, RedemptionId = redemption.Id, });
                         }
