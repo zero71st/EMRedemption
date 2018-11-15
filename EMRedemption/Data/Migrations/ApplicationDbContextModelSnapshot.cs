@@ -54,23 +54,29 @@ namespace EMRedemption.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("FetchBy");
+                    b.Property<string>("FetchBy")
+                        .HasMaxLength(30);
 
                     b.Property<DateTime>("FetchDateTime");
 
                     b.Property<DateTime>("RedeemDateTime");
 
-                    b.Property<string>("RetailerEmailAddress");
+                    b.Property<string>("RetailerEmailAddress")
+                        .HasMaxLength(100);
 
-                    b.Property<string>("RetailerName");
+                    b.Property<string>("RetailerName")
+                        .HasMaxLength(100);
 
-                    b.Property<string>("RetailerPhoneNumber");
+                    b.Property<string>("RetailerPhoneNumber")
+                        .HasMaxLength(20);
 
-                    b.Property<string>("RetailerStoreName");
+                    b.Property<string>("RetailerStoreName")
+                        .HasMaxLength(100);
 
                     b.Property<int>("Status");
 
-                    b.Property<string>("TransactionID");
+                    b.Property<string>("TransactionID")
+                        .HasMaxLength(10);
 
                     b.HasKey("Id");
 
@@ -88,9 +94,11 @@ namespace EMRedemption.Data.Migrations
 
                     b.Property<int>("RedemptionId");
 
-                    b.Property<string>("RewardCode");
+                    b.Property<string>("RewardCode")
+                        .HasMaxLength(5);
 
-                    b.Property<string>("RewardName");
+                    b.Property<string>("RewardName")
+                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 
@@ -104,14 +112,13 @@ namespace EMRedemption.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("AddBy");
+                    b.Property<string>("AddBy")
+                        .HasMaxLength(30);
 
                     b.Property<DateTime>("AddDate");
 
-                    b.Property<string>("Code")
-                        .HasMaxLength(5);
-
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasMaxLength(512);
 
                     b.Property<DateTime>("ExpireDate");
 
@@ -122,15 +129,46 @@ namespace EMRedemption.Data.Migrations
 
                     b.Property<int?>("RedemptionItemId");
 
-                    b.Property<string>("RewardType");
+                    b.Property<string>("RewardCode")
+                        .HasMaxLength(5);
 
-                    b.Property<string>("SerialNo");
+                    b.Property<string>("RewardName")
+                        .HasMaxLength(100);
+
+                    b.Property<int>("RewardTypeId");
+
+                    b.Property<string>("RewardTypeName")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("SerialNo")
+                        .HasMaxLength(50);
 
                     b.HasKey("Id");
 
                     b.HasIndex("RedemptionItemId");
 
+                    b.HasIndex("RewardTypeId");
+
                     b.ToTable("Rewards");
+                });
+
+            modelBuilder.Entity("EMRedemption.Entities.RewardType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(5);
+
+                    b.Property<string>("RewardName")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("RewardTypeName")
+                        .HasMaxLength(100);
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RewardTypes");
                 });
 
             modelBuilder.Entity("EMRedemption.Models.ApplicationUser", b =>
@@ -303,6 +341,11 @@ namespace EMRedemption.Data.Migrations
                     b.HasOne("EMRedemption.Entities.RedemptionItem", "RedemptionItem")
                         .WithMany("Rewards")
                         .HasForeignKey("RedemptionItemId");
+
+                    b.HasOne("EMRedemption.Entities.RewardType", "RewardType")
+                        .WithMany()
+                        .HasForeignKey("RewardTypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

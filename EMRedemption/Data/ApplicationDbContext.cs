@@ -8,12 +8,14 @@ using EMRedemption.Models;
 using EMRedemption.Entities;
 using EMRedemption.Models.RewardViewModels;
 using EMRedemption.Models.RedemptionViewModels;
+using EMRedemption.Models.RewardTypeViewModels;
 
 namespace EMRedemption.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Reward> Rewards { get; set; }
+        public DbSet<RewardType> RewardTypes { get; set; }
         public DbSet<Redemption> Redemptions { get; set; }
         public DbSet<RedemptionItem> RedemptionItems { get; set; }
         public DbSet<AppLog> AppLogs { get; set; }

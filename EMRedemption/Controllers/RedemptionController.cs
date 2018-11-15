@@ -357,7 +357,7 @@ namespace EMRedemption.Controllers
         {
             return _db.Rewards
                       .Where(rw=> rw.Quantity > 0)
-                      .OrderBy(rw => rw.Code)
+                      .OrderBy(rw => rw.RewardCode)
                       .ThenBy(rw => rw.LotNo)
                       .ToList();
         }
@@ -381,7 +381,7 @@ namespace EMRedemption.Controllers
                 bool skip = false;
                 foreach (var item in redemption.RedemptionItems)
                 {
-                    int stock = stockRewards.Where(rw => rw.Code.Equals(item.RewardCode))
+                    int stock = stockRewards.Where(rw => rw.RewardCode.Equals(item.RewardCode))
                                             .Where(rw=> rw.Quantity > 0)
                                             .Sum(rw => rw.Quantity);
 
@@ -393,7 +393,7 @@ namespace EMRedemption.Controllers
 
                 foreach (var redemptionItem in redemption.RedemptionItems)
                 {
-                    var rewards = stockRewards.Where(rw => rw.Code.Equals(redemptionItem.RewardCode))
+                    var rewards = stockRewards.Where(rw => rw.RewardCode.Equals(redemptionItem.RewardCode))
                                               .Where(rw => rw.Quantity > 0)
                                               .OrderBy(rw => rw.LotNo)
                                               .ToList();

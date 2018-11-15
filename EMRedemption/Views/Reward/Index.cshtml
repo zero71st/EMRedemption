@@ -65,25 +65,28 @@ else
                     #
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Rewards[0].RewardType)
-                </th>
-                <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].LotNo)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Rewards[0].Code)
+                    @Html.DisplayNameFor(model => model.Rewards[0].RewardTypeName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Rewards[0].RewardCode)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Rewards[0].RewardName)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].SerialNo)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Rewards[0].Description)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].ExpireDate)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].Quantity)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Rewards[0].Description)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].AddDate)
@@ -97,43 +100,46 @@ else
         <tbody>
             @foreach (var item in Model.Rewards)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.LineNo)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RewardType)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.LotNo)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Code)
-                    </td>
-                    <td>
-                        @*<span class="label label-default">******</span>*@
-                        @Html.DisplayFor(modelItem => item.SerialNo)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Description)
-                    </td>
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LineNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LotNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RewardTypeName)
+                </td>
 
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ExpireDate)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Quantity)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.AddDate)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.IsUsed)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id"><span class="glyphicon glyphicon-pencil"></span></a>
-                    </td>
-                </tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RewardCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RewardName)
+                </td>
+                <td>
+                    @*<span class="label label-default">******</span>*@
+                    @Html.DisplayFor(modelItem => item.SerialNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ExpireDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Quantity)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AddDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsUsed)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id"><span class="glyphicon glyphicon-pencil"></span></a>
+                </td>
+            </tr>
             }
         </tbody>
     </table>

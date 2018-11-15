@@ -15,33 +15,35 @@ namespace EMRedemption.Models.RewardViewModels
         public int LineNo { get; set; }
 
         [Required]
+        [DisplayName("Lot No.")]
+        [DisplayFormat(DataFormatString = "{0:d}")]
+        public DateTime LotNo { get; set; }
+
+        [Required]
         [DisplayName("Reward Code")]
-        public string Code { get; set; }
+        public string RewardCode { get; set; }
+
+        [DisplayName("Reward Name")]
+        public string RewardName { get; set; }
+
+        [DisplayName("Reward Type")]
+        public string RewardTypeName { get; set; }
 
         [Required]
         [DisplayName("Serial Number")]
         public string SerialNo { get; set; }
-
-        [Required]
-        [DisplayName("Reward Name")]
-        public string Description { get; set; }
-
-        [Required]
-        [DisplayName("Quantity")]
-        public int Quantity { get; set; }
 
         [DisplayName("Expire Date")]
         [DisplayFormat(DataFormatString = "{0:d}")]
         public DateTime ExpireDate { get; set; }
 
         [Required]
-        [DisplayName("Reward Type")]
-        public string RewardType { get; set; }
+        [DisplayName("Quantity")]
+        public int Quantity { get; set; }
 
         [Required]
-        [DisplayName("Lot No.")]
-        [DisplayFormat(DataFormatString ="{0:d}")]
-        public DateTime LotNo { get; set; }
+        [DisplayName("Description")]
+        public string Description { get; set; }
 
         [DisplayName("Added By")]
         public string AddBy { get; set; }
@@ -58,12 +60,13 @@ namespace EMRedemption.Models.RewardViewModels
 
         public RewardViewModel(Reward reward):this()
         {
-            Code = reward.Code;
+            RewardCode = reward.RewardCode;
+            RewardName = reward.RewardName;
+            RewardTypeName = reward.RewardTypeName;
             SerialNo = reward.SerialNo;
             Description = reward.Description;
             ExpireDate = reward.ExpireDate;
             Quantity = reward.Quantity;
-            RewardType = reward.RewardType;
             LotNo = StringLotNoToDateLotNo(reward.LotNo);
         }
 

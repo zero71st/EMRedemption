@@ -42,9 +42,6 @@
                             Process Redemptions<span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu">
-                            @*<li>
-                    <a asp-area="" asp-controller="Redemption" asp-action="Retrieve">Load Redemptions</a>
-                </li>*@
                             <li>
                                 <a asp-area="" asp-controller="Redemption" asp-action="ProcessRewardList">Process Rewards</a>
                             </li>
@@ -60,8 +57,17 @@
                         </ul>
                     </li>
                     <li><a asp-area="" asp-controller="Redemption" asp-action="Index">Find Redemptions</a></li>
-                    <li><a asp-area="" asp-controller="Reward" asp-action="Index">Manage Rewards</a></li>
-                    <li><a asp-area="" asp-controller="Home" asp-action="ListLogs">Activity Log</a></li>
+                    @*<li><a asp-area="" asp-controller="Reward" asp-action="Index">Manage Rewards</a></li>*@
+                    <li>
+                        <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
+                            Manage Rewards<span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a asp-area="" asp-controller="Reward" asp-action="Index">Rewards</a></li>
+                            <li><a asp-area="" asp-controller="RewardType" asp-action="Index">Reward Type</a></li>
+                        </ul>
+                    </li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="ListLogs">Logs</a></li>
                     @* <li><a asp-area="" asp-controller="Redemption" asp-action="CallApi">Manual call API</a></li>*@
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")

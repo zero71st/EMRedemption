@@ -1,0 +1,57 @@
+﻿@model RewardTypeListViewModel
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>REWARD TYPE</h2>
+<hr/>
+<form asp-controller="RewardType" asp-action="Index" method="get" class="form-inline">
+    <div class="form-group">
+        <label class="sr-only" for="exampleInputEmail3">Search reward info</label>
+        <input asp-for="Keyword" type="text" class="form-control" placeholder="Search by message">
+    </div>
+    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
+</form>
+<hr />
+
+<p>
+    <a class="btn btn-default" asp-action="Create">
+        <span class="glyphicon glyphicon-plus"></span> New
+    </a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RewardTypes[0].RewardCode)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RewardTypes[0].RewardName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RewardTypes[0].RewardTypeName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.RewardTypes)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RewardCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RewardName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RewardTypeName)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id"><span class="glyphicon glyphicon-pencil"></span></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

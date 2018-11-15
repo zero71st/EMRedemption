@@ -65,7 +65,7 @@ namespace EMRedemption.Controllers
             var models = rewards
                         .OrderBy(rw=> rw.LotNo)
                         .OrderBy(rw=> rw.RewardType)
-                        .ThenBy(rw=> rw.Code)
+                        .ThenBy(rw=> rw.RewardCode)
                         .ToList()
                         .Select(rw =>
                         {
@@ -74,10 +74,11 @@ namespace EMRedemption.Controllers
                             {
                                 LineNo = i,
                                 Id = rw.Id,
-                                Code = rw.Code,
+                                RewardCode = rw.RewardCode,
+                                RewardName = rw.RewardName,
+                                RewardTypeName = rw.RewardTypeName,
                                 SerialNo = rw.SerialNo,
                                 Description = rw.Description,
-                                RewardType = rw.RewardType,
                                 ExpireDate = rw.ExpireDate,
                                 Quantity = rw.Quantity,
                                 LotNo = RewardViewModel.StringLotNoToDateLotNo(rw.LotNo),
@@ -110,24 +111,41 @@ namespace EMRedemption.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind("Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")] RewardViewModel model)
+        public ActionResult Create([Bind("RewardCode,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")] RewardViewModel model)
         {
+
+            var rewardType = _db.RewardTypes.SingleOrDefault(m=> m.Code == model.RewardCode);
+
+            if(rewardType == null)
+            {
+                ModelState.AddModelError("", "Can not found reward code: " + model.RewardCode);
+                return View(model);
+            }
+            else
+            {
+                model.RewardName = rewardType.RewardName;
+                model.RewardTypeName = rewardType.RewardTypeName;
+            }
+
             try
             {
                 if (ModelState.IsValid)
                 {
-                    Reward reward = new Reward(model.Code,
-                                                       _cryptoSerivce.Encrypt(model.SerialNo),
-                                                       model.Description,
-                                                       model.RewardType,
-                                                       model.ExpireDate,
-                                                       model.Quantity,
-                                                       model.LotNo,
-                                                       User.Identity.Name);
+                    
+                    Reward reward = new Reward(model.RewardCode,
+                                               model.RewardName,
+                                               _cryptoSerivce.Encrypt(model.SerialNo),
+                                               model.Description,
+                                               model.RewardTypeName,
+                                               model.ExpireDate,
+                                               model.Quantity,
+                                               model.LotNo,
+                                               User.Identity.Name);
+                    reward.RewardTypeId = rewardType.Id;
 
                     _db.Add(reward);
                     _db.SaveChanges();
-                    _logger.LogInformation("Create reward code {0} successful by {1} ",reward.Code,User.Identity.Name);
+                    _logger.LogInformation("Create reward code {0} successful by {1} ",reward.RewardCode,User.Identity.Name);
                     return RedirectToAction(nameof(Index)); 
                 }
             }
@@ -162,27 +180,42 @@ namespace EMRedemption.Controllers
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,[Bind("Id,Code,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
+        public ActionResult Edit(int id,[Bind("Id,RewardCode,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
         {
             if (id != model.Id)
                 return NotFound();
+
+            var rewardType = _db.RewardTypes.SingleOrDefault(m => m.Code == model.RewardCode);
+
+            if (rewardType == null)
+            {
+                ModelState.AddModelError("", "Can not found reward code: " + model.RewardCode);
+                return View(model);
+            }
+            else
+            {
+                model.RewardName = rewardType.RewardName;
+                model.RewardTypeName = rewardType.RewardTypeName;
+            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
                     var reward = _db.Rewards.Find(id);
-                    reward.Code = model.Code;
+                    reward.RewardCode = model.RewardCode;
+                    reward.RewardName = model.RewardName;
+                    reward.RewardTypeName = model.RewardTypeName;
                     reward.SerialNo = _cryptoSerivce.Encrypt(model.SerialNo);
                     reward.Description = model.Description;
-                    reward.RewardType = model.RewardType;
                     reward.ExpireDate = model.ExpireDate;
                     reward.Quantity = model.Quantity;
                     reward.LotNo = model.LotNo.ToString("yyyy-MM-dd");
+                    reward.RewardTypeId = rewardType.Id;
 
                     _db.SaveChanges();
 
-                    _logger.LogInformation("Update reward code: {0} successful by {1}",reward.Code, User.Identity.Name);
+                    _logger.LogInformation("Update reward code: {0} successful by {1}",reward.RewardCode, User.Identity.Name);
                     return RedirectToAction(nameof(Index));
 
                 }

@@ -1,0 +1,40 @@
+﻿@model RewardTypeViewModel
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Create Reward Type</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RewardCode" class="control-label"></label>
+                <input asp-for="RewardCode" class="form-control" readonly="readonly" />
+                <span asp-validation-for="RewardCode" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RewardName" class="control-label"></label>
+                <input asp-for="RewardName" class="form-control" />
+                <span asp-validation-for="RewardName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RewardTypeName" class="control-label"></label>
+                <input asp-for="RewardTypeName" class="form-control" />
+                <span asp-validation-for="RewardTypeName" class="text-danger"></span>
+            </div>
+            <p>
+                <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-floppy-disk"></span>Save</button>
+                <a class="btn btn-primary" asp-action="Index"><span class="glyphicon glyphicon-ban-circle"></span>Cancel</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

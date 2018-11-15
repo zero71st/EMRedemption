@@ -9,31 +9,41 @@ namespace EMRedemption.Entities
     public class Reward:BaseEntity
     {
         [MaxLength(5)]
-        public string Code { get; set; }
+        public string RewardCode { get; set; }
+        [MaxLength(100)]
+        public string RewardName { get; set; }
+        [MaxLength(100)]
+        public string RewardTypeName { get; set; }
+        [MaxLength(50)]
         public string SerialNo { get; set; }
-        public string Description { get; set; }
         public int Quantity { get; set; }
         public DateTime ExpireDate { get; set; }
         [MaxLength(10)]
         public string LotNo { get; set; }
-        public string RewardType { get; set; }
+        [MaxLength(512)]
+        public string Description { get; set; }
+        [MaxLength(30)]
         public string AddBy { get; set; }
         public DateTime AddDate { get; set; }
 
         public int? RedemptionItemId { get; set; }
         public virtual RedemptionItem RedemptionItem { get; set; }
 
+        public int RewardTypeId { get; set; }
+        public virtual RewardType RewardType { get; set; }
+
         public Reward()
         {
             AddDate = DateTime.Now;
         }
 
-        public Reward(string code,string serialNo,string description,string rewardType,DateTime expireDate,int quantity,DateTime lotNo,string addBy):this()
+        public Reward(string rewardCode,string rewardName,string serialNo,string description,string rewardTypeName,DateTime expireDate,int quantity,DateTime lotNo,string addBy):this()
         {
-            Code = code;
+            RewardCode = rewardCode;
+            RewardName = rewardName;
+            RewardTypeName = rewardTypeName;
             SerialNo = serialNo;
             Description = description;
-            RewardType = rewardType;
             ExpireDate = expireDate;
             Quantity = quantity;
             LotNo = lotNo.ToString("yyyy-MM-dd");

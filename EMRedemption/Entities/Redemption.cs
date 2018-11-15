@@ -8,13 +8,19 @@ namespace EMRedemption.Entities
 {
     public class Redemption:BaseEntity
     {
+        [MaxLength(10)]
         public string TransactionID { get; set; }
+        [MaxLength(100)]
         public string RetailerName { get; set; }
+        [MaxLength(100)]
         public string RetailerStoreName { get; set; }
+        [MaxLength(100)]
         public string RetailerEmailAddress { get; set; }
+        [MaxLength(20)]
         public string RetailerPhoneNumber { get; set; }
         public RedemptionStatus Status { get; set; }
         public DateTime RedeemDateTime { get; set; }
+        [MaxLength(30)]
         public string FetchBy { get; set; }
         public DateTime FetchDateTime { get; set; }
 
