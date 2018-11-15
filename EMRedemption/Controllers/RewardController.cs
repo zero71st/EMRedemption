@@ -46,9 +46,7 @@ namespace EMRedemption.Controllers
             var rewards = _db.Rewards.AsEnumerable();
 
             if (!String.IsNullOrEmpty(keyword))
-            {
                 rewards = rewards.Where(c => c.Description.Contains(keyword));
-            }
 
             if (String.IsNullOrEmpty(filterName))
                 filterName = RewardStock.Avalible;

@@ -43,8 +43,8 @@
                         </a>
                         <ul class="dropdown-menu">
                             @*<li>
-                                <a asp-area="" asp-controller="Redemption" asp-action="Retrieve">Load Redemptions</a>
-                            </li>*@
+                    <a asp-area="" asp-controller="Redemption" asp-action="Retrieve">Load Redemptions</a>
+                </li>*@
                             <li>
                                 <a asp-area="" asp-controller="Redemption" asp-action="ProcessRewardList">Process Rewards</a>
                             </li>
@@ -61,6 +61,7 @@
                     </li>
                     <li><a asp-area="" asp-controller="Redemption" asp-action="Index">Find Redemptions</a></li>
                     <li><a asp-area="" asp-controller="Reward" asp-action="Index">Manage Rewards</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="ListLogs">Activity Log</a></li>
                     @* <li><a asp-area="" asp-controller="Redemption" asp-action="CallApi">Manual call API</a></li>*@
                 </ul>
                 @await Html.PartialAsync("_LoginPartial")

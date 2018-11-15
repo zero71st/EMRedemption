@@ -1,0 +1,53 @@
+﻿
+@model AppLogListViewModel
+
+@{
+    ViewData["Title"] = "ListLogs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Activity Logs</h2>
+<hr/>
+<form asp-controller="Home" asp-action="ListLogs" method="get" class="form-inline">
+    <div class="form-group">
+        <label class="sr-only" for="exampleInputEmail3">Search reward info</label>
+        <input asp-for="Keyword" type="text" class="form-control" placeholder="Search by message">
+    </div>
+    <button type="submit" class="btn btn-success"><span class="glyphicon glyphicon-search"></span></button>
+</form>
+<hr/>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+              Time
+            </th>
+            <th>
+              Type
+            </th>
+            <th>
+                Description
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.AppLogs) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Logged)
+            </td>
+            <td>
+                
+                @Html.DisplayFor(modelItem => item.Level)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Message)
+            </td>
+            <td>
+                <a asp-action="DetailLog" asp-route-id="@item.Id">see more...</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
