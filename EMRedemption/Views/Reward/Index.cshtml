@@ -8,7 +8,6 @@
 <h3>MANAGE REWARDS</h3>
 <hr />
 
-
 <form asp-controller="Reward" asp-action="Index" method="get" class="form-inline">
     <div class="form-group">
         <select asp-for="FilterName" asp-items="Model.Filters" class="form-control"></select>
@@ -26,7 +25,7 @@
         <span class="glyphicon glyphicon-plus"></span> New
     </a>
 
-    <a class="btn btn-default" asp-action="Import">
+    <a class="btn btn-default" asp-action="ImportRewards">
         <span class="glyphicon glyphicon-import"></span>Import
     </a>
 </p>

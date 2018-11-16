@@ -14,6 +14,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using EMRedemption.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using NPOI.SS.UserModel;
+using Microsoft.AspNetCore.Hosting;
+using System.IO;
+using System.Text;
+using NPOI.HSSF.UserModel;
+using NPOI.XSSF.UserModel;
+using System.Collections.Specialized;
 
 namespace EMRedemption.Controllers
 {
@@ -22,21 +29,24 @@ namespace EMRedemption.Controllers
         private readonly ApplicationDbContext _db;
         private readonly ILogger<RewardController> _logger;
         private readonly ITDesCryptoService _cryptoSerivce;
+        private IHostingEnvironment _hostingEnvironment;
 
         public RewardController(ApplicationDbContext db,
                                 ILogger<RewardController> logger,
-                                ITDesCryptoService cryptoService)
+                                ITDesCryptoService cryptoService,
+                                IHostingEnvironment hostingEnvironment)
         {
             _db = db;
             _logger = logger;
             _cryptoSerivce = cryptoService;
+            _hostingEnvironment = hostingEnvironment;
         }
 
         [HttpGet]
         [Authorize]
-        public ActionResult Index(string filterName,string keyword)
+        public ActionResult Index(string filterName, string keyword)
         {
-                List<string> filters = new List<string>()
+            List<string> filters = new List<string>()
             {
                 RewardStock.Avalible,
                 RewardStock.IsInUsed,
@@ -63,9 +73,9 @@ namespace EMRedemption.Controllers
 
             var i = 0;
             var models = rewards
-                        .OrderBy(rw=> rw.LotNo)
-                        .OrderBy(rw=> rw.RewardType)
-                        .ThenBy(rw=> rw.RewardCode)
+                        .OrderBy(rw => rw.LotNo)
+                        .OrderBy(rw => rw.RewardType)
+                        .ThenBy(rw => rw.RewardCode)
                         .ToList()
                         .Select(rw =>
                         {
@@ -114,9 +124,9 @@ namespace EMRedemption.Controllers
         public ActionResult Create([Bind("RewardCode,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")] RewardViewModel model)
         {
 
-            var rewardType = _db.RewardTypes.SingleOrDefault(m=> m.Code == model.RewardCode);
+            var rewardType = _db.RewardTypes.SingleOrDefault(m => m.Code == model.RewardCode);
 
-            if(rewardType == null)
+            if (rewardType == null)
             {
                 ModelState.AddModelError("", "Can not found reward code: " + model.RewardCode);
                 return View(model);
@@ -131,7 +141,7 @@ namespace EMRedemption.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    
+
                     Reward reward = new Reward(model.RewardCode,
                                                model.RewardName,
                                                _cryptoSerivce.Encrypt(model.SerialNo),
@@ -145,18 +155,18 @@ namespace EMRedemption.Controllers
 
                     _db.Add(reward);
                     _db.SaveChanges();
-                    _logger.LogInformation("Create reward code {0} successful by {1} ",reward.RewardCode,User.Identity.Name);
-                    return RedirectToAction(nameof(Index)); 
+                    _logger.LogInformation("Create reward code {0} successful by {1} ", reward.RewardCode, User.Identity.Name);
+                    return RedirectToAction(nameof(Index));
                 }
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogError("Try to save reward by {0} with problem {1}", User.Identity.Name,ex.Message);
+                _logger.LogError("Try to save reward by {0} with problem {1}", User.Identity.Name, ex.Message);
                 ModelState.AddModelError("", "Can not save reward!");
             }
             catch (Exception ex)
             {
-                _logger.LogError("Try to save reward by {0} with problem {1}", User.Identity.Name,ex.Message);
+                _logger.LogError("Try to save reward by {0} with problem {1}", User.Identity.Name, ex.Message);
                 ModelState.AddModelError("", "Can not save reward!");
             }
 
@@ -173,14 +183,168 @@ namespace EMRedemption.Controllers
 
             RewardViewModel model = new RewardViewModel(reward);
             model.SerialNo = _cryptoSerivce.Decrypt(reward.SerialNo);
-            
+
             return View(model);
+        }
+
+        public ActionResult ImportRewards()
+        {
+            var items = _db.RewardTypes.Select(r => new { r.Id, Name = $"{r.Code}:{r.RewardName}" }).ToList();
+            var model = new ImportRewardViewModel();
+            model.LotDate = DateTime.Now;
+            model.RewardTypes = new SelectList(items, "Id", "Name");
+            model.RewardTypeId = items[0].Id;
+
+            return View(model);
+        }
+
+        public ActionResult OnReadRewards()
+        {
+            var rewards = GetRewardsFromExcel(Request);
+
+            StringBuilder sb = new StringBuilder();
+
+            sb.Append("<table class='table'>");
+            sb.Append("<tr>");
+            sb.Append("<th>Lot No.</th>");
+            sb.Append("<th>Reward Type</th>");
+            sb.Append("<th>Reward Code</th>");
+            sb.Append("<th>Reward Name</th>");
+            sb.Append("<th>Serial No</th>");
+            sb.Append("<th>Quantity</th>");
+            sb.Append("<th>Expire Date</th>");
+            sb.Append("</tr>");
+                
+            foreach (var reward in rewards)
+            {
+                sb.Append("<tr>");
+                sb.Append($"<td>{reward.LotNo}</td>");
+                sb.Append($"<td>{reward.RewardTypeName}</td>");
+                sb.Append($"<td>{reward.RewardCode}</td>");
+                sb.Append($"<td>{reward.RewardName}</td>");
+                sb.Append($"<td>{_cryptoSerivce.Encrypt(reward.SerialNo)}</td>");
+                sb.Append($"<td>{reward.Quantity}</td>");
+                sb.Append($"<td>{reward.ExpireDate}</td>");
+                sb.Append("</tr>");
+            }
+
+            sb.Append("</table>");
+
+            return this.Content(sb.ToString());
+        }
+
+        private IEnumerable<Reward> GetRewardsFromExcel(HttpRequest request)
+        {
+            IFormCollection form = request.Form;
+            IFormFile file = request.Form.Files[0];
+            string folderName = "Upload";
+            string webRootPath = _hostingEnvironment.WebRootPath;
+            string newPath = Path.Combine(webRootPath, folderName);
+            StringBuilder sb = new StringBuilder();
+
+            int id = int.Parse(form["RewardId"]);
+            string lot = form["LotDate"];
+            string description = form["Description"];
+
+            var type = _db.RewardTypes.FirstOrDefault(r => r.Id == id);
+
+            if (type == null)
+                throw new Exception("Reward Type can not be null!");
+
+            var rewards = new List<Reward>();
+
+            if (!Directory.Exists(newPath))
+            {
+                Directory.CreateDirectory(newPath);
+            }
+
+            if (file.Length > 0)
+            {
+                string sFileExtension = Path.GetExtension(file.FileName).ToLower();
+                ISheet sheet;
+                string fullPath = Path.Combine(newPath, file.FileName);
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                    stream.Position = 0;
+                    if (sFileExtension == ".xls")
+                    {
+                        HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats  
+                        sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook  
+                    }
+                    else
+                    {
+                        XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
+                        sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
+                    }
+
+                    IRow headerRow = sheet.GetRow(0); //Get Header Row
+                    int cellCount = headerRow.LastCellNum;
+
+
+
+                    for (int j = 0; j < cellCount; j++)
+                    {
+                        NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
+                        if (cell == null || string.IsNullOrWhiteSpace(cell.ToString())) continue;
+                    }
+
+                    for (int i = (sheet.FirstRowNum + 1); i <= sheet.LastRowNum; i++) //Read Excel File
+                    {
+                        Reward reward = new Reward();
+
+                        reward.LotNo = lot;
+                        reward.RewardCode = type.Code;
+                        reward.RewardTypeName = type.RewardTypeName;
+                        reward.RewardTypeId = type.Id;
+                        reward.Quantity = 1;
+                        reward.Description = description;
+                        reward.AddDate = DateTime.Now;
+                        reward.AddBy = User.Identity.Name;
+
+                        IRow row = sheet.GetRow(i);
+                        if (row == null) continue;
+
+                        if (row.Cells.All(d => d.CellType == CellType.Blank)) continue;
+
+                        for (int j = row.FirstCellNum; j < cellCount; j++)
+                        {
+                            if (row.GetCell(j) != null)
+                            {
+                                if (j == 0)
+                                    reward.SerialNo = row.GetCell(j).ToString();
+                                if (j == 1)
+                                    reward.RewardName = row.GetCell(j).ToString();
+                                if (j == 2)
+                                    reward.ExpireDate = DateTime.Now;
+                            }
+                        }
+                        rewards.Add(reward);
+                    }
+                }
+            }
+            return rewards;
+        }
+
+        public ActionResult OnImportRewards()
+        {
+            var rewards = GetRewardsFromExcel(Request);
+            try
+            {
+                _db.Rewards.AddRange(rewards);
+                _db.SaveChanges();
+                return this.Content("<p class='alert alert-success'>Save successful</p>");
+            }
+            catch (Exception ex)
+            {
+                return this.Content("<p class='alert alert-danger'>Save failed</p>");
+            }
         }
 
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id,[Bind("Id,RewardCode,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
+        public ActionResult Edit(int id, [Bind("Id,RewardCode,SerialNo,Description,RewardType,ExpireDate,Quantity,LotNo")]RewardViewModel model)
         {
             if (id != model.Id)
                 return NotFound();
@@ -215,7 +379,7 @@ namespace EMRedemption.Controllers
 
                     _db.SaveChanges();
 
-                    _logger.LogInformation("Update reward code: {0} successful by {1}",reward.RewardCode, User.Identity.Name);
+                    _logger.LogInformation("Update reward code: {0} successful by {1}", reward.RewardCode, User.Identity.Name);
                     return RedirectToAction(nameof(Index));
 
                 }
@@ -223,7 +387,7 @@ namespace EMRedemption.Controllers
                 {
                     _logger.LogError("Can not update reward! by {0} with problem {1}", User.Identity.Name, ex.Message);
                     ModelState.AddModelError("", "Can not update reward!");
-                } 
+                }
             }
 
             return View(model);

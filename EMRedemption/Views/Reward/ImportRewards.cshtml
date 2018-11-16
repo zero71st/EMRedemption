@@ -1,0 +1,153 @@
+﻿@model ImportRewardViewModel
+@{
+    ViewData["Title"] = "ImportRewards";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Import Rewards</h2>
+<hr />
+
+<form method="post" enctype="multipart/form-data">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="form-group">
+                <input type="file" id="fUpload" name="files" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="RewardTypes" class="control-label"></label>
+                <select asp-for="RewardTypeId" asp-items="Model.RewardTypes" class="form-control"></select>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="LotDate" class="control-label"></label>
+                <input type="date" asp-for="LotDate" class="form-control" />
+                <span asp-validation-for="LotDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input type="text" asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <input type="button" id="btnUpload" value="Upload" class="btn btn-primary" />
+            <input type="button" id="btnSave" value="Save" class="btn btn-primary" />
+        </div>
+    </div>
+</form>
+<br />
+<div id="dvData"></div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+
+        $('#btnUpload').on('click', function () {
+
+            var rewardId = $("#RewardTypeId").val();
+            var lotDate = $("#LotDate").val();
+            var des = $("#Description").val();
+
+            var fileExtension = ['xls', 'xlsx'];
+            var filename = $('#fUpload').val();
+
+            if (filename.length == 0) {
+                alert("Please select a file.");
+                return false;
+            }
+            else {
+                var extension = filename.replace(/^.*\./, '');
+                if ($.inArray(extension, fileExtension) == -1) {
+                    alert("Please select only excel files.");
+                    return false;
+                }
+            }
+            var fdata = new FormData();
+            var fileUpload = $("#fUpload").get(0);
+            var files = fileUpload.files;
+
+            fdata.append(files[0].name, files[0]);
+            fdata.append("RewardId", rewardId);
+            fdata.append("LotDate", lotDate);
+            fdata.append("Description", des);
+
+            $.ajax({
+                type: "POST",
+                url: "/Reward/OnReadRewards",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.length == 0)
+                        alert('Some error occured while uploading');
+                    else {
+                        $('#dvData').html(response);
+                    }
+                },
+                error: function (e) {
+                    $('#dvData').html(e.responseText);
+                }
+            });
+        })
+
+        $('#btnSave').on('click', function () {
+
+            var rewardId = $("#RewardTypeId").val();
+            var lotDate = $("#LotDate").val();
+            var des = $("#Description").val();
+
+            var fileExtension = ['xls', 'xlsx'];
+            var filename = $('#fUpload').val();
+
+            if (filename.length == 0) {
+                alert("Please select a file.");
+                return false;
+            }
+            else {
+                var extension = filename.replace(/^.*\./, '');
+                if ($.inArray(extension, fileExtension) == -1) {
+                    alert("Please select only excel files.");
+                    return false;
+                }
+            }
+            var fdata = new FormData();
+            var fileUpload = $("#fUpload").get(0);
+            var files = fileUpload.files;
+            fdata.append(files[0].name, files[0]);
+            fdata.append("RewardId", rewardId);
+            fdata.append("LotDate", lotDate);
+            fdata.append("Description", des);
+
+            $.ajax({
+                type: "POST",
+                url: "/Reward/OnImportRewards",
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("XSRF-TOKEN",
+                        $('input:hidden[name="__RequestVerificationToken"]').val());
+                },
+                data: fdata,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.length == 0)
+                        alert('Some error occured while uploading');
+                    else {
+                        $('#dvData').html(response);
+                    }
+                },
+                error: function (e) {
+                    $('#dvData').html(e.responseText);
+                }
+            });
+        })
+    });
+</script>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
