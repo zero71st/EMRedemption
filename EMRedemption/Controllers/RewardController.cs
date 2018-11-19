@@ -222,7 +222,7 @@ namespace EMRedemption.Controllers
                 sb.Append($"<td>{reward.RewardTypeName}</td>");
                 sb.Append($"<td>{reward.RewardCode}</td>");
                 sb.Append($"<td>{reward.RewardName}</td>");
-                sb.Append($"<td>{_cryptoSerivce.Encrypt(reward.SerialNo)}</td>");
+                sb.Append($"<td>{reward.SerialNo}</td>");
                 sb.Append($"<td>{reward.Quantity}</td>");
                 sb.Append($"<td>{reward.ExpireDate}</td>");
                 sb.Append("</tr>");
@@ -281,8 +281,6 @@ namespace EMRedemption.Controllers
                     IRow headerRow = sheet.GetRow(0); //Get Header Row
                     int cellCount = headerRow.LastCellNum;
 
-
-
                     for (int j = 0; j < cellCount; j++)
                     {
                         NPOI.SS.UserModel.ICell cell = headerRow.GetCell(j);
@@ -312,7 +310,7 @@ namespace EMRedemption.Controllers
                             if (row.GetCell(j) != null)
                             {
                                 if (j == 0)
-                                    reward.SerialNo = row.GetCell(j).ToString();
+                                    reward.SerialNo = _cryptoSerivce.Encrypt(row.GetCell(j).ToString());
                                 if (j == 1)
                                     reward.RewardName = row.GetCell(j).ToString();
                                 if (j == 2)
@@ -333,10 +331,12 @@ namespace EMRedemption.Controllers
             {
                 _db.Rewards.AddRange(rewards);
                 _db.SaveChanges();
+                _logger.LogInformation($"Import rewards by {User.Identity.Name} successful");
                 return this.Content("<p class='alert alert-success'>Save successful</p>");
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, $"Can not import reward from excel by {User.Identity.Name}");
                 return this.Content("<p class='alert alert-danger'>Save failed</p>");
             }
         }
