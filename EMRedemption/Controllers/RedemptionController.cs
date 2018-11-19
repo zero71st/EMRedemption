@@ -229,20 +229,39 @@ namespace EMRedemption.Controllers
         {
             StringBuilder sb = new StringBuilder();
 
-            sb.Append("<h3>เรียน คุณ <b>" + redemption.RetailerName+"</b></h3>");
+            sb.AppendLine("<body style='font-family:Cordia New;font-size:14pt'><p>เรียน ลูกค้า/ ผู้ใช้บริการแอพพลิเคชั่น  Mobil Loyalty club</p>");
+            sb.AppendLine("<p></p><p></p>");
+            sb.AppendLine("<p>ขอบคุณที่ใช้บริการสั่งผลิตภัณฑ์โมบิลผ่านแอพพลิเคชั่น Mobil Loyalty กรุณาอ้างอิงรหัสเงินสดลาซาด้าได้จากที่นี่</p>");
 
             foreach (var item in redemption.RedemptionItems)
             {
-                sb.Append("<p><h3>โค้ด:&nbsp" + item.RewardName+"&nbspจำนวน:&nbsp"+item.Quantity+ "&nbspรายการ</h3></p>");
-
                 foreach (var reward in item.Rewards)
                 {
-                    sb.Append("<p>โค้ด:<b>"+_cryptoService.Decrypt(reward.SerialNo)+"</b>ใช้ได้ถึง:"+reward.ExpireDate.ToString("dd/MM/yyyy")+"</p>");
+                    sb.AppendLine($"<p style='color:blue;'>{_cryptoService.Decrypt(reward.SerialNo).Trim()}</p>");
                 }
             }
 
-            sb.Append("<p></p><p>ขอแสดงความนับถือ</p>");
-            sb.Append("<p>Exxon Mobil</p>");
+            sb.AppendLine("<p>อย่าลืม ยิ่งขาย/ซื้อโมบิลมาก ยิ่งได้มาก</p>");
+            sb.AppendLine("<p></p><p></p><p></p>");
+            sb.AppendLine("<p>ข้อสงสัยเกี่ยวกับการใช้รหัสเงินสดลาซาด้า หรือบริการอื่นๆของลาซาด้า ติดต่อ 02 018 0000 ทุกวันจันทร์- ศุกร์ เวลา 8.00-22.00 น. และวันเสาร์ อาทิตย์ เวลา 9.00-18.00 น.</p>");
+            sb.AppendLine("<p></p><p></p>");
+            sb.AppendLine("<u><b>ข้อกำหนดเงื่อนไขของรหัสเงินสดจากลาซาด้า</b></u>");
+            sb.AppendLine("<ol>");
+            sb.AppendLine("<li>ขอสงวนสิทธิ์การใช้รหัสเงินสดได้เพียง 1 ครั้ง ต่อ 1 ท่าน ตลอดรายการส่งเสริมขาย ส่วนต่างของมูลค่าไม่สามารถ แลกเปลี่ยน/ โอน หรือทอนเป็นเงินสดได้</li>");
+            sb.AppendLine("<li>รหัสเงินสดนี้ไม่สามารถโอน/เปลี่ยน/แลก/ทอนเป็นเงินสดได้</li>");
+            sb.AppendLine("<li>ระยะเวลาการใช้รหัสเงินสดคือ 6 เดือน หลังจากวันที่ได้รับรหัสเงินสดนี้</li>");
+            sb.AppendLine("<li>ลูกค้าต้องสมัครสมาชิกและทำการล็อคอินก่อนการใช้รหัสเงินสด</li>");
+            sb.AppendLine("<li>รหัสเงินสดนี้ไม่สามารถใช้ร่วมกับรหัสโปรโมชั่นรายการขายอื่นๆของลาซาด้า และไม่สามารถใช้ร่วมกับสินค้าที่ถูกควบคุมราคาด้วยกฎหมาย หรือควบคุมการจัดรายการส่งเสริมการขายจากทางเจ้าของร้านค้าได้</li>");
+            sb.AppendLine("<li>รหัสเงินสดนี้ใช้กับการชำระเงินเต็มจำนวนเท่านั้น</li>");
+            sb.AppendLine("<li>รหัสเงินสดนี้ไม่สามารถใช้ร่วมกับการสั่งซื้อแบบคอร์ปอเรท และไม่สามารถใช้ได้กับตัวแทนจำหน่าย</li>");
+            sb.AppendLine("<li>ลาซาด้าขอสงวนสิทธิ์ในการยกเลิกการสั่งซื้อที่ไม่ตรงตามเงื่อนไขตามที่บริษัทกำหนด อีกทั้งสงวนสิทธิ์ในการเปลี่ยนแปลงเงื่อนไขรายการโดยไม่ต้องแจ้งให้ทราบล่วงหน้า และในกรณีพิพาท คำตัดสินของบริษัทฯ ถือเป็นที่สุด</li>");
+            sb.AppendLine("<li>เงื่อนไขการซื้อสินค้า การคืนสินค้า เป็นไปตามที่ www.lazada.co.th กำหนด</li>");
+            sb.AppendLine("<li>ข้อมูลเพิ่มเติมเกี่ยวกับการใช้รหัสเงินสด การสั่งซื้อ การคืนสินค้า การเช็ครหัสการส่งสินค้า หรือบริการอื่นๆของลาซาด้า ติดต่อได้ที่ 02-018 0000 ทุกวันจันทร์- ศุกร์ เวลา 8.00-22.00 น. และวันเสาร์ อาทิตย์ เวลา 9.00-18.00 น.</li>");
+            sb.AppendLine("</ol>");
+            sb.AppendLine("<p></p><p></p><p></p>");
+            sb.AppendLine("<p>ขอขอบคุณ</p>");
+            sb.AppendLine("<p></p><p></p><p></p>");
+            sb.AppendLine("<p><h3>Mobil Loyalty Club</h3></p></body>");
 
             return sb;
         }

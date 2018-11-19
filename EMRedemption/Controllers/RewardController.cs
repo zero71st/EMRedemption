@@ -332,6 +332,7 @@ namespace EMRedemption.Controllers
                 _db.Rewards.AddRange(rewards);
                 _db.SaveChanges();
                 _logger.LogInformation($"Import rewards by {User.Identity.Name} successful");
+
                 return this.Content("<p class='alert alert-success'>Save successful</p>");
             }
             catch (Exception ex)

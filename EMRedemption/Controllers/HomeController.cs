@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using EMRedemption.Models;
 using EMRedemption.Models.AppLogViewModels;
 using EMRedemption.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EMRedemption.Controllers
 {
@@ -30,18 +31,19 @@ namespace EMRedemption.Controllers
             return View();
         }
 
+        [Authorize]
         public IActionResult ListLogs(string keyword)
         {
             var model = new AppLogListViewModel();
 
-            var logs = _db.AppLogs.Take(30).AsEnumerable();
+            var logs = _db.AppLogs.OrderByDescending(l => l.Logged).Take(30).AsEnumerable();
 
             if(!string.IsNullOrEmpty(keyword))
                 logs = logs.Where(l=> l.Message.Contains(keyword));
 
             logs = logs.ToList();
 
-            model.AppLogs = logs.OrderByDescending(l=> l.Logged).Select(l => new AppLogViewModel
+            model.AppLogs = logs.Select(l => new AppLogViewModel
             {
                 Id = l.Id,
                 Level = l.Level,
@@ -55,6 +57,7 @@ namespace EMRedemption.Controllers
             return View(model);
         }
 
+        [Authorize]
         public IActionResult DetailLog(int id)
         {
             var model = new AppLogViewModel();
