@@ -10,7 +10,6 @@
 
 <form asp-controller="Reward" asp-action="Index" method="get" class="form-inline">
     <div class="form-group">
-        @*<label asp-for="RewardTypes" class="control-label"></label>*@
         <select asp-for="RewardTypeId" asp-items="Model.RewardTypes" class="form-control"></select>
     </div>
     <div class="form-group">
@@ -25,11 +24,11 @@
 </form>
 <hr/>
 <p>
-    <a class="btn btn-default" asp-action="Create">
+    <a class="btn btn-primary" asp-action="Create">
         <span class="glyphicon glyphicon-plus"></span> New
     </a>
 
-    <a class="btn btn-default" asp-action="ImportRewards">
+    <a class="btn btn-primary" asp-action="ImportRewards">
         <span class="glyphicon glyphicon-import"></span>Import
     </a>
 </p>
@@ -45,19 +44,19 @@ else
     @if (Model.FilterName.Equals(RewardStock.Avalible))
     {
         <p>
-            <small>Aailable: @Model.Rewards.Count</small>
+            <small>Avaliable: <span class="badge">@Model.Rewards.Count</span></small>
         </p>
     }
     else if (Model.FilterName.Equals(RewardStock.IsInUsed))
     {
         <p>
-            <small> Is in used: @Model.Rewards.Count </small>
+            <small> Is in used: <span class="badge">@Model.Rewards.Count</span></small>
         </p>
     }
     else
     {
         <p>
-            <small> All: @Model.Rewards.Count </small>
+            <small> All: <span class="badge">@Model.Rewards.Count</span></small>
         </p>
     }
 

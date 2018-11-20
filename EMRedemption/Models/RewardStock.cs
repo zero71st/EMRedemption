@@ -7,8 +7,8 @@ namespace EMRedemption.Models
 {
     public static class RewardStock
     {
-        public const string Avalible = "Avalible";
+        public const string Avalible = "Avaliable";
         public const string IsInUsed = "Is in used";
-        public const string All = "-All-";
+        public const string All = "--All--";
     }
 }
