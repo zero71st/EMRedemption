@@ -44,7 +44,7 @@ namespace EMRedemption.Controllers
 
         [HttpGet]
         [Authorize]
-        public ActionResult Index(string filterName, string keyword)
+        public ActionResult Index(int RewardTypeId,string filterName, string keyword)
         {
             List<string> filters = new List<string>()
             {
@@ -53,7 +53,12 @@ namespace EMRedemption.Controllers
                 RewardStock.All
             };
 
-            var rewards = _db.Rewards.AsEnumerable();
+            if (RewardTypeId == 0)
+                RewardTypeId = 1;
+
+            var rewards = _db.Rewards
+                             .Where(rw=> rw.RewardTypeId == RewardTypeId)
+                             .AsEnumerable();
 
             if (!String.IsNullOrEmpty(keyword))
                 rewards = rewards.Where(c => c.Description.Contains(keyword));
@@ -98,10 +103,13 @@ namespace EMRedemption.Controllers
                             };
                         }).ToList();
 
+            var rewardTypes = new SelectList(_db.RewardTypes.Select(rw=> new { rw.Id, rw.RewardName}).ToList(),"Id","RewardName");
             var model = new RewardListViewModel();
+
             model.Rewards = models;
             model.Filters = new SelectList(filters);
             model.FilterName = filterName;
+            model.RewardTypes = rewardTypes;
             model.Keyword = keyword;
 
             return View(model);
@@ -314,7 +322,7 @@ namespace EMRedemption.Controllers
                                 if (j == 1)
                                     reward.RewardName = row.GetCell(j).ToString();
                                 if (j == 2)
-                                    reward.ExpireDate = DateTime.Now;
+                                    reward.ExpireDate = StringToDate(row.GetCell(j).ToString());
                             }
                         }
                         rewards.Add(reward);
@@ -322,6 +330,11 @@ namespace EMRedemption.Controllers
                 }
             }
             return rewards;
+        }
+
+        private DateTime StringToDate(string dateString)
+        {
+            return Convert.ToDateTime(dateString);
         }
 
         public ActionResult OnImportRewards()

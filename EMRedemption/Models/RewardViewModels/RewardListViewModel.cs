@@ -11,6 +11,8 @@ namespace EMRedemption.Models.RewardViewModels
     {
         public List<RewardViewModel> Rewards { get; set; }
         public SelectList Filters { get; set; }
+        public SelectList RewardTypes { get; set; }
+        public int RewardTypeId { get; set; }
         public string FilterName { get; set; }
         public string Keyword { get; set; }
     }
