@@ -75,16 +75,24 @@ else
                         @Html.DisplayFor(modelItem => item.RetailerStoreName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+                        @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
+                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.RedeemDateTime)
                     </td>
                     <td>
-                        @if (item.Status.Equals(RedemptionProcess.UndeliverSuccessful))
+                        @if (item.Status.Equals(RedemptionProcess.Unprocess))
+                        {
+                            <span class="label label-info"> @Html.DisplayFor(modelItem => item.Status)</span>
+                        }
+                        else if (item.Status.Equals(RedemptionProcess.Processed))
+                        {
+                            <span class="label label-warning"> @Html.DisplayFor(modelItem => item.Status)</span>
+                        }
+                        else if (item.Status.Equals(RedemptionProcess.UndeliverSuccessful))
                         {
                             <span class="label label-danger"> @Html.DisplayFor(modelItem => item.Status)</span>
                         }

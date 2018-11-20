@@ -53,8 +53,13 @@ namespace EMRedemption.Controllers
                 RewardStock.All
             };
 
-            if (RewardTypeId == 0)
-                RewardTypeId = 1;
+
+            var rewardTypes = _db.RewardTypes.Select(rw => new { rw.Id, rw.RewardName }).ToList();
+
+            var lookupType = new SelectList(rewardTypes, "Id", "RewardName");
+
+            if (lookupType.Count() > 0)
+                RewardTypeId = rewardTypes[0].Id;
 
             var rewards = _db.Rewards
                              .Where(rw=> rw.RewardTypeId == RewardTypeId)
@@ -103,13 +108,14 @@ namespace EMRedemption.Controllers
                             };
                         }).ToList();
 
-            var rewardTypes = new SelectList(_db.RewardTypes.Select(rw=> new { rw.Id, rw.RewardName}).ToList(),"Id","RewardName");
+
+
             var model = new RewardListViewModel();
 
             model.Rewards = models;
             model.Filters = new SelectList(filters);
             model.FilterName = filterName;
-            model.RewardTypes = rewardTypes;
+            model.RewardTypes = lookupType;
             model.Keyword = keyword;
 
             return View(model);

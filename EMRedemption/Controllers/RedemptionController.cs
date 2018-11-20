@@ -205,7 +205,7 @@ namespace EMRedemption.Controllers
                     {
                         var body = CreateMailBody(redemption);
 
-                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "Deliver Voucher Code", body.ToString());
+                        _mailSender.SendEmailAsync(redemption.RetailerEmailAddress, "นำส่งคูปองจากการแลกคะแนนสะสมของ Exxon Mobil", body.ToString());
 
                         redemption.SetAsDeliveredSuccessful();
                         _db.Update(redemption);
@@ -324,7 +324,7 @@ namespace EMRedemption.Controllers
                 {
                     var body = CreateMailBody(resend);
 
-                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "Re-deliver Voucher Code",body.ToString());
+                    _mailSender.SendEmailAsync(resend.RetailerEmailAddress, "นำส่งคูปองจากการแลกคะแนนสะสมของ Exxon Mobil",body.ToString());
                     resend.SetAsDeliveredSuccessful();
                     _db.SaveChanges();
 
