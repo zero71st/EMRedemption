@@ -17,6 +17,8 @@ namespace EMRedemption.Entities
         [MaxLength(50)]
         public string SerialNo { get; set; }
         public int Quantity { get; set; }
+        public int Amount { get; set; }
+        public DateTime ValidFrom { get; set; }
         public DateTime ExpireDate { get; set; }
         [MaxLength(10)]
         public string LotNo { get; set; }
