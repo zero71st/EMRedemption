@@ -84,45 +84,69 @@ else
                 <th>
                     @Html.DisplayNameFor(model => model.Redemptions[0].RedeemDateTime)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Redemptions[0].Status)
+                </th>
                 <th></th>
             </tr>
         </thead>
         <tbody class="table-hover">
             @foreach (var item in Model.Redemptions)
             {
-                <tr class="success">
+            <tr class="success">
+                <td>
+                    @Html.DisplayFor(modelItem => item.LineNo)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TransactionID)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RetailerName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RetailerStoreName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RedeemDateTime)
+                </td>
+
+                <td>
+                    @if (item.Status.Equals(RedemptionProcess.Unprocess))
+                    {
+                        <span class="label label-info"> @Html.DisplayFor(modelItem => item.Status)</span>
+                    }
+                    else if (item.Status.Equals(RedemptionProcess.Processed))
+                    {
+                        <span class="label label-warning"> @Html.DisplayFor(modelItem => item.Status)</span>
+                    }
+                    else if (item.Status.Equals(RedemptionProcess.UndeliverSuccessful))
+                    {
+                        <span class="label label-danger"> @Html.DisplayFor(modelItem => item.Status)</span>
+                    }
+                    else
+                    {
+                        <span class="label label-success"> @Html.DisplayFor(modelItem => item.Status)</span>
+                    }
+                </td>
+
+                @if (Model.FilterName.Equals(RedemptionProcess.DeliveredSuccessful))
+                {
                     <td>
-                        @Html.DisplayFor(modelItem => item.LineNo)
+                        <p>
+                            <a asp-action="ChangeStatus" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
+                                <span class="glyphicon glyphicon-check" aria-hidden="true"></span>Change as unsend-email
+                            </a>
+                        </p>
                     </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TransactionID)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RetailerName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RetailerStoreName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RetailerPhoneNumber)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RetailerEmailAddress)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RedeemDateTime)
-                    </td>
-                    <td>
-                        @if (Model.FilterName.Equals(RedemptionProcess.DeliveredSuccessful))
-                        {
-                            <p>
-                                <a asp-action="ChangeStatus" asp-route-id="@item.Id" class="btn btn-primary btn-sm">
-                                    <span class="glyphicon glyphicon-check" aria-hidden="true"></span>Change as unsend-email
-                                </a>
-                            </p>
-                        }
-                    </td>
-                </tr>
+                }
+
+            </tr>
                 <tr></tr>
                 <tr>
                     <td></td>
@@ -132,29 +156,31 @@ else
                     <td>Points</td>
                     <td>Quantity</td>
                     <td></td>
+                    <td></td>
                 </tr>
                 <tr>
                     @foreach (var detail in item.RedemptionItems)
                     {
-                    <tr class="table-condensed">
-                        <td></td>
-                        <td>
-                            @Html.DisplayFor(modelItem => detail.LineNo)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => detail.RewardCode)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => detail.RewardName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => detail.Points)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => detail.Quantity)
-                        </td>
-                        <td></td>
-                    </tr>
+                <tr class="table-condensed">
+                    <td></td>
+                    <td>
+                        @Html.DisplayFor(modelItem => detail.LineNo)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => detail.RewardCode)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => detail.RewardName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => detail.Points)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => detail.Quantity)
+                    </td>
+                    <td></td>
+                    <td></td>
+                </tr>
                 }
                     </tr>
                 }

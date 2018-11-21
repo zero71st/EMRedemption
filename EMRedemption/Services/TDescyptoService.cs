@@ -43,7 +43,7 @@ namespace EMRedemption.Services
 
             tdes.Clear();
 
-            return System.Text.Encoding.ASCII.GetString(resultArray);
+            return System.Text.Encoding.ASCII.GetString(resultArray).TrimEnd('\0');
         }
 
         private byte[] hexStringToBytes(string stringHex)
