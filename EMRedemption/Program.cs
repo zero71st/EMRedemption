@@ -22,7 +22,7 @@ namespace EMRedemption
             var logger = NLog.Web.NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
             try
             {
-               // logger.Debug("init main");
+                logger.Debug("init main");
                 BuildWebHost(args).Run();
             }
             catch (Exception ex)

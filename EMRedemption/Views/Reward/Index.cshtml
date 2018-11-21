@@ -41,7 +41,7 @@
 }
 else
 {
-    @if (Model.FilterName.Equals(RewardStock.Avalible))
+    @if (Model.FilterName.Equals(RewardStock.Avaliable))
     {
         <p>
             <small>Avaliable: <span class="badge">@Model.Rewards.Count</span></small>
@@ -120,7 +120,6 @@ else
                     @Html.DisplayFor(modelItem => item.RewardName)
                 </td>
                 <td>
-                    @*<span class="label label-default">******</span>*@
                     @Html.DisplayFor(modelItem => item.SerialNo)
                 </td>
                 <td>

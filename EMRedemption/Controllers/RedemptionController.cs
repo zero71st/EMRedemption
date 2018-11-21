@@ -232,15 +232,16 @@ namespace EMRedemption.Controllers
             sb.AppendLine("<body style='font-family:Cordia New;font-size:14pt'><p>เรียน ลูกค้า/ ผู้ใช้บริการแอพพลิเคชั่น  Mobil Loyalty club</p>");
             sb.AppendLine("<p></p><p></p>");
             sb.AppendLine("<p>ขอบคุณที่ใช้บริการสั่งผลิตภัณฑ์โมบิลผ่านแอพพลิเคชั่น Mobil Loyalty กรุณาอ้างอิงรหัสเงินสดลาซาด้าได้จากที่นี่</p>");
-
+            sb.AppendLine("<p style='color:blue;'>");
             foreach (var item in redemption.RedemptionItems)
             {
                 foreach (var reward in item.Rewards)
                 {
-                    sb.AppendLine($"<p style='color:blue;'>{_cryptoService.Decrypt(reward.SerialNo).Trim()}</p>");
+                    sb.AppendLine($"<br>{_cryptoService.Decrypt(reward.SerialNo).Trim()}&emsp Th300 voucher</br>");
                 }
             }
 
+            sb.AppendLine("</p>");
             sb.AppendLine("<p>อย่าลืม ยิ่งขาย/ซื้อโมบิลมาก ยิ่งได้มาก</p>");
             sb.AppendLine("<p></p><p></p><p></p>");
             sb.AppendLine("<p>ข้อสงสัยเกี่ยวกับการใช้รหัสเงินสดลาซาด้า หรือบริการอื่นๆของลาซาด้า ติดต่อ 02 018 0000 ทุกวันจันทร์- ศุกร์ เวลา 8.00-22.00 น. และวันเสาร์ อาทิตย์ เวลา 9.00-18.00 น.</p>");
@@ -361,7 +362,7 @@ namespace EMRedemption.Controllers
                 _db.SaveChanges();
 
                 _logger.LogInformation("Redemptions on:{0} quantity:{1} transactions were loaded to database by {2} successful", model.RedeemDate,redemptions.Count,User.Identity.Name);
-                return RedirectToAction(nameof(Retrieve));
+                return RedirectToAction(nameof(ProcessRewardList));
             }
             catch (Exception ex)
             {

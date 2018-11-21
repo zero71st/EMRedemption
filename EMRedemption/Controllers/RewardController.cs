@@ -48,17 +48,16 @@ namespace EMRedemption.Controllers
         {
             List<string> filters = new List<string>()
             {
-                RewardStock.Avalible,
+                RewardStock.Avaliable,
                 RewardStock.IsInUsed,
                 RewardStock.All
             };
-
 
             var rewardTypes = _db.RewardTypes.Select(rw => new { rw.Id, rw.RewardName }).ToList();
 
             var lookupType = new SelectList(rewardTypes, "Id", "RewardName");
 
-            if (lookupType.Count() > 0)
+            if (RewardTypeId == 0)
                 RewardTypeId = rewardTypes[0].Id;
 
             var rewards = _db.Rewards
@@ -69,9 +68,9 @@ namespace EMRedemption.Controllers
                 rewards = rewards.Where(c => c.Description.Contains(keyword));
 
             if (String.IsNullOrEmpty(filterName))
-                filterName = RewardStock.Avalible;
+                filterName = RewardStock.Avaliable;
 
-            if (filterName.Equals(RewardStock.Avalible))
+            if (filterName.Equals(RewardStock.Avaliable))
             {
                 rewards = rewards.Where(r => r.RedemptionItemId == null || r.RedemptionItemId == 0);
             }
@@ -83,9 +82,9 @@ namespace EMRedemption.Controllers
 
             var i = 0;
             var models = rewards
-                        .OrderBy(rw => rw.LotNo)
                         .OrderBy(rw => rw.RewardType)
                         .ThenBy(rw => rw.RewardCode)
+                        .ThenBy(rw => rw.LotNo)
                         .ToList()
                         .Select(rw =>
                         {
@@ -348,8 +347,13 @@ namespace EMRedemption.Controllers
             var rewards = GetRewardsFromExcel(Request);
             try
             {
-                _db.Rewards.AddRange(rewards);
-                _db.SaveChanges();
+                //_db.Rewards.AddRange(rewards);
+                foreach (var reward in rewards)
+                {
+                    _db.Rewards.Add(reward);
+                    _db.SaveChanges();
+                }
+
                 _logger.LogInformation($"Import rewards by {User.Identity.Name} successful");
 
                 return this.Content("<p class='alert alert-success'>Save successful</p>");
