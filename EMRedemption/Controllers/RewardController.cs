@@ -271,15 +271,20 @@ namespace EMRedemption.Controllers
                 Directory.CreateDirectory(newPath);
             }
 
+            #region NPOI
+            /*
             if (file.Length > 0)
             {
                 string sFileExtension = Path.GetExtension(file.FileName).ToLower();
                 ISheet sheet;
                 string fullPath = Path.Combine(newPath, file.FileName);
+
+                
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     file.CopyTo(stream);
                     stream.Position = 0;
+
                     if (sFileExtension == ".xls")
                     {
                         HSSFWorkbook hssfwb = new HSSFWorkbook(stream); //This will read the Excel 97-2000 formats  
@@ -339,6 +344,10 @@ namespace EMRedemption.Controllers
                     }
                 }
             }
+            */
+            #endregion
+            
+
             return rewards;
         }
 

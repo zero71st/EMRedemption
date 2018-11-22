@@ -64,7 +64,7 @@ else
                 <tr class="success">
                     <td>
                         @Html.DisplayFor(modelItem => item.LineNo)
-                    </td>
+                    .</td>
                     <td>
                         @Html.DisplayFor(modelItem => item.TransactionID)
                     </td>
@@ -110,7 +110,7 @@ else
                     <td>Reward Name</td>
                     <td>Points</td>
                     <td>Quantity</td>
-                    <td></td>
+                    <td>Reward Ref. ID</td>
                     <td></td>
                 </tr>
                 <tr>
@@ -133,7 +133,11 @@ else
                         <td>
                             @Html.DisplayFor(modelItem => detail.Quantity)
                         </td>
-                        <td>                        
+                        <td>
+                            @foreach (var reward in detail.Rewards)
+                            {
+                                <span class="label label-info">@reward.Id</span>
+                            }
                         </td>
                         <td></td>
                     </tr>

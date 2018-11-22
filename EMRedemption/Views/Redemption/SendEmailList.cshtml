@@ -96,7 +96,7 @@ else
             <tr class="success">
                 <td>
                     @Html.DisplayFor(modelItem => item.LineNo)
-                </td>
+                .</td>
                 <td>
                     @Html.DisplayFor(modelItem => item.TransactionID)
                 </td>
@@ -114,7 +114,7 @@ else
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.RedeemDateTime)
-                </td>
+                </td>   
 
                 <td>
                     @if (item.Status.Equals(RedemptionProcess.Unprocess))
@@ -151,30 +151,35 @@ else
                     <td>Reward Name</td>
                     <td>Points</td>
                     <td>Quantity</td>
-                    <td></td>
+                    <td>Reward ref. ID</td>
                     <td></td>
                 </tr>
                 <tr>
-                    @foreach (var detail in item.RedemptionItems)
+                    @foreach (var redempItem in item.RedemptionItems)
                     {
                 <tr class="table-condensed">
                     <td></td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.LineNo)
+                        @Html.DisplayFor(modelItem => redempItem.LineNo)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.RewardCode)
+                        @Html.DisplayFor(modelItem => redempItem.RewardCode)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.RewardName)
+                        @Html.DisplayFor(modelItem => redempItem.RewardName)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.Points)
+                        @Html.DisplayFor(modelItem => redempItem.Points)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => detail.Quantity)
+                        <span class="badge">@Html.DisplayFor(modelItem => redempItem.Quantity)</span>
                     </td>
-                    <td></td>
+                    <td>
+                        @foreach (var reward in redempItem.Rewards)
+                        {
+                            <span class="label label-info">@reward.Id</span>
+                        }
+                    </td>
                     <td></td>
                 </tr>
                 }

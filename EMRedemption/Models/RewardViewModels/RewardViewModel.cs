@@ -70,6 +70,7 @@ namespace EMRedemption.Models.RewardViewModels
 
         public RewardViewModel(Reward reward):this()
         {
+            Id = reward.Id;
             RewardCode = reward.RewardCode;
             RewardName = reward.RewardName;
             RewardTypeName = reward.RewardTypeName;

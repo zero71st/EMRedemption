@@ -61,11 +61,12 @@ namespace EMRedemption.Controllers
             };
 
             IEnumerable<Redemption> redemptions = _db.Redemptions
-                                                  .Include(r => r.RedemptionItems)
-                                                  .OrderBy(r=> r.RedeemDateTime)
-                                                  .AsEnumerable();
-           
-            if(!String.IsNullOrEmpty(keyword))
+                                                    .Include(r => r.RedemptionItems)
+                                                        .ThenInclude(r => r.Rewards)
+                                                    .OrderBy(r => r.RedeemDateTime)
+                                                    .AsEnumerable();
+
+            if (!String.IsNullOrEmpty(keyword))
             {
                 redemptions = redemptions
                              .Where(r => r.TransactionID.Contains(keyword) ||
@@ -139,12 +140,13 @@ namespace EMRedemption.Controllers
         public IActionResult SendEmailList(string filterName,string keyword)
         {
             IEnumerable<Redemption> redemptions = _db.Redemptions
-                                                  .Include(r => r.RedemptionItems).AsEnumerable();
+                                                    .Include(r => r.RedemptionItems)
+                                                        .ThenInclude(r => r.Rewards)
+                                                    .AsEnumerable();
 
             if (!String.IsNullOrEmpty(keyword))
             {
-                               redemptions = _db.Redemptions
-                                                .Include(r => r.RedemptionItems)
+                               redemptions =    redemptions
                                                 .Where(r => r.TransactionID.Contains(keyword) ||
                                                             r.RetailerName.Contains(keyword) ||
                                                             r.RetailerStoreName.Contains(keyword) ||

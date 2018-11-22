@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Data;
 using System.ComponentModel;
 using EMRedemption.Entities;
+using EMRedemption.Models.RewardViewModels;
 
 namespace EMRedemption.Models.RedemptionViewModels
 {
@@ -90,6 +91,7 @@ namespace EMRedemption.Models.RedemptionViewModels
                     RewardName = ri.RewardName,
                     Points = ri.Points,
                     Quantity = ri.Quantity,
+                    Rewards = ri.Rewards.Select(rw=> new RewardViewModel(rw)).ToList()
                 };
             }));
         }
