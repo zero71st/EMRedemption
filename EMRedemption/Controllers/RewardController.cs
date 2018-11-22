@@ -21,6 +21,7 @@ using System.Text;
 using NPOI.HSSF.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Collections.Specialized;
+using OfficeOpenXml;
 
 namespace EMRedemption.Controllers
 {
@@ -253,7 +254,7 @@ namespace EMRedemption.Controllers
             string folderName = "Upload";
             string webRootPath = _hostingEnvironment.WebRootPath;
             string newPath = Path.Combine(webRootPath, folderName);
-            StringBuilder sb = new StringBuilder();
+            //StringBuilder sb = new StringBuilder();
 
             int id = int.Parse(form["RewardId"]);
             string lot = form["LotDate"];
@@ -279,7 +280,7 @@ namespace EMRedemption.Controllers
                 ISheet sheet;
                 string fullPath = Path.Combine(newPath, file.FileName);
 
-                
+
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     file.CopyTo(stream);
@@ -293,7 +294,7 @@ namespace EMRedemption.Controllers
                     else
                     {
                         XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
-                       
+
                         sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
 
                     }
@@ -346,9 +347,71 @@ namespace EMRedemption.Controllers
             }
             */
             #endregion
-            
+            string fullPath = Path.Combine(newPath, file.FileName);
+            FileInfo fl = new FileInfo(Path.Combine(webRootPath,folderName, file.FileName));
 
-            return rewards;
+            using (var stream = new FileStream(fullPath, FileMode.Create))
+            {
+                file.CopyTo(stream);
+                stream.Position = 0;
+            }
+
+            try
+            {
+                using (ExcelPackage package = new ExcelPackage(fl,"12345678"))
+                {
+                    ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
+                    int rowCount = worksheet.Dimension.Rows;
+                    int ColCount = worksheet.Dimension.Columns;
+
+                    bool bHeaderRow = true;
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        Reward reward = new Reward();
+                        reward.LotNo = lot;
+                        reward.RewardCode = type.Code;
+                        reward.RewardName = type.RewardName;
+                        reward.RewardTypeName = type.RewardTypeName;
+                        reward.RewardTypeId = type.Id;
+                        reward.Quantity = 1;
+                        reward.Description = description;
+                        reward.AddDate = DateTime.Now;
+                        reward.AddBy = User.Identity.Name;
+
+                        //for (int col = 1; col <= ColCount; col++)
+                        //{
+                        //    if (bHeaderRow)
+                        //    {
+                        //       // sb.Append(worksheet.Cells[row, col].Value.ToString() + "\t");
+                        //    }
+                        //    else
+                        //    {
+                        //        reward.SerialNo = _cryptoSerivce.Encrypt(row.GetCell(j).ToString());
+                        //        reward.Amount = int.Parse(row.GetCell(j).ToString());
+                        //        reward.ValidFrom = StringToDate(row.GetCell(j).ToString());
+                        //        reward.ExpireDate = StringToDate(row.GetCell(j).ToString());
+                        //    }
+
+                        //}
+
+                        reward.SerialNo = _cryptoSerivce.Encrypt(worksheet.Cells[row,1].Value.ToString());
+                        reward.Amount = int.Parse(worksheet.Cells[row, 2].Value.ToString());
+                        reward.ValidFrom = StringToDate(worksheet.Cells[row, 3].Value.ToString());
+                        reward.ExpireDate = StringToDate(worksheet.Cells[row, 4].Value.ToString());
+
+                        rewards.Add(reward);
+                    }
+
+                    return rewards;
+                }
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+
+            //return rewards;
         }
 
         private DateTime StringToDate(string dateString)
