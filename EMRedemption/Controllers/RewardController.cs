@@ -254,8 +254,6 @@ namespace EMRedemption.Controllers
             string folderName = "Upload";
             string webRootPath = _hostingEnvironment.WebRootPath;
             string newPath = Path.Combine(webRootPath, folderName);
-            //StringBuilder sb = new StringBuilder();
-
             int id = int.Parse(form["RewardId"]);
             string lot = form["LotDate"];
             string description = form["Description"];
@@ -269,7 +267,15 @@ namespace EMRedemption.Controllers
 
             if (!Directory.Exists(newPath))
             {
-                Directory.CreateDirectory(newPath);
+                try
+                {
+                    Directory.CreateDirectory(newPath);
+                    _logger.LogInformation("Create folder success!");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,"Create folder fail");
+                }
             }
 
             #region NPOI
@@ -350,10 +356,19 @@ namespace EMRedemption.Controllers
             string fullPath = Path.Combine(newPath, file.FileName);
             FileInfo fl = new FileInfo(Path.Combine(webRootPath,folderName, file.FileName));
 
-            using (var stream = new FileStream(fullPath, FileMode.Create))
+            try
             {
-                file.CopyTo(stream);
-                stream.Position = 0;
+                using (var stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    file.CopyTo(stream);
+                    stream.Position = 0;
+                }
+                _logger.LogInformation("Copy file success!");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Copy file fail");
             }
 
             try
@@ -378,23 +393,6 @@ namespace EMRedemption.Controllers
                         reward.Description = description;
                         reward.AddDate = DateTime.Now;
                         reward.AddBy = User.Identity.Name;
-
-                        //for (int col = 1; col <= ColCount; col++)
-                        //{
-                        //    if (bHeaderRow)
-                        //    {
-                        //       // sb.Append(worksheet.Cells[row, col].Value.ToString() + "\t");
-                        //    }
-                        //    else
-                        //    {
-                        //        reward.SerialNo = _cryptoSerivce.Encrypt(row.GetCell(j).ToString());
-                        //        reward.Amount = int.Parse(row.GetCell(j).ToString());
-                        //        reward.ValidFrom = StringToDate(row.GetCell(j).ToString());
-                        //        reward.ExpireDate = StringToDate(row.GetCell(j).ToString());
-                        //    }
-
-                        //}
-
                         reward.SerialNo = _cryptoSerivce.Encrypt(worksheet.Cells[row,1].Value.ToString());
                         reward.Amount = int.Parse(worksheet.Cells[row, 2].Value.ToString());
                         reward.ValidFrom = StringToDate(worksheet.Cells[row, 3].Value.ToString());
