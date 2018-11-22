@@ -32,6 +32,18 @@
             </div>
 
             <div class="form-group">
+                <label asp-for="Amount" class="control-label"></label>
+                <input asp-for="Amount" class="form-control" />
+                <span asp-validation-for="Amount" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ValidFrom" class="control-label"></label>
+                <input asp-for="ValidFrom" class="form-control" />
+                <span asp-validation-for="ValidFrom" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label asp-for="ExpireDate" class="control-label"></label>
                 <input type="date" asp-for="ExpireDate" class="form-control" />
                 <span asp-validation-for="ExpireDate" class="text-danger"></span>

@@ -288,7 +288,9 @@ namespace EMRedemption.Controllers
                     else
                     {
                         XSSFWorkbook hssfwb = new XSSFWorkbook(stream); //This will read 2007 Excel format  
+                       
                         sheet = hssfwb.GetSheetAt(0); //get first sheet from workbook   
+
                     }
 
                     IRow headerRow = sheet.GetRow(0); //Get Header Row
@@ -306,6 +308,7 @@ namespace EMRedemption.Controllers
 
                         reward.LotNo = lot;
                         reward.RewardCode = type.Code;
+                        reward.RewardName = type.RewardName;
                         reward.RewardTypeName = type.RewardTypeName;
                         reward.RewardTypeId = type.Id;
                         reward.Quantity = 1;
@@ -325,8 +328,10 @@ namespace EMRedemption.Controllers
                                 if (j == 0)
                                     reward.SerialNo = _cryptoSerivce.Encrypt(row.GetCell(j).ToString());
                                 if (j == 1)
-                                    reward.RewardName = row.GetCell(j).ToString();
+                                    reward.Amount = int.Parse(row.GetCell(j).ToString());
                                 if (j == 2)
+                                    reward.ValidFrom = StringToDate(row.GetCell(j).ToString());
+                                if (j == 3)
                                     reward.ExpireDate = StringToDate(row.GetCell(j).ToString());
                             }
                         }

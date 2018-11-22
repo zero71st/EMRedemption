@@ -30,10 +30,20 @@ namespace EMRedemption.Models.RewardViewModels
         public string RewardTypeName { get; set; }
 
         [Required]
-        [DisplayName("Serial Number")]
+        [DisplayName("Voucher Code")]
         public string SerialNo { get; set; }
 
-        [DisplayName("Expire Date")]
+        [Required]
+        [DisplayName("Amount")]
+        public int Amount { get; set; }
+
+        [Required]
+        [DisplayName("Valid From")]
+        [DisplayFormat(DataFormatString = "{0:d}")]
+        public DateTime ValidFrom { get; set; }
+
+        [Required]
+        [DisplayName("Valid Until")]
         [DisplayFormat(DataFormatString = "{0:d}")]
         public DateTime ExpireDate { get; set; }
 
@@ -64,8 +74,10 @@ namespace EMRedemption.Models.RewardViewModels
             RewardName = reward.RewardName;
             RewardTypeName = reward.RewardTypeName;
             SerialNo = reward.SerialNo;
-            Description = reward.Description;
+            Amount = reward.Amount;
+            ValidFrom = reward.ValidFrom;
             ExpireDate = reward.ExpireDate;
+            Description = reward.Description;
             Quantity = reward.Quantity;
             LotNo = StringLotNoToDateLotNo(reward.LotNo);
         }

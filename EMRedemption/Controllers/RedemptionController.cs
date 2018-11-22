@@ -238,7 +238,12 @@ namespace EMRedemption.Controllers
             {
                 foreach (var reward in item.Rewards)
                 {
-                    sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} {reward.RewardName} <br>");
+                    if (reward.RewardName.Contains("300"))
+                        sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 300 บาท<br>");
+                    if (reward.RewardName.Contains("500"))
+                        sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 500 บาท<br>");
+                    if (reward.RewardName.Contains("1000"))
+                        sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 1000 บาท<br>");
                 }
             }
 
