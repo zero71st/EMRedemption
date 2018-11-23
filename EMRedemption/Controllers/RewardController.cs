@@ -258,7 +258,7 @@ namespace EMRedemption.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error");
+                _logger.LogError(ex, "Copy file to host failed!");
                 return this.Content($"<p class='alert alert-danger'>Found error {ex.Message}</p>");
             }
         }
@@ -391,7 +391,6 @@ namespace EMRedemption.Controllers
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Copy file to failed!");
                     throw ex;
                 }
             }
