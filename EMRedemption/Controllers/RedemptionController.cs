@@ -564,11 +564,20 @@ namespace EMRedemption.Controllers
             var redemptions = new List<Redemption>();
             var client = new HttpClient();
 
-            client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
+            //client.BaseAddress = new Uri("http://test.thmobilloyaltyclub.com/api/redeem_voucher_list");
+
+            //var content = new FormUrlEncodedContent(new[]
+            //{
+            //    new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
+            //    new KeyValuePair<string, string>("startDate", redeemDate+" 12:00 AM"),
+            //    new KeyValuePair<string,string>("endDate",redeemDate+" 11:59 PM")
+            //});
+
+            client.BaseAddress = new Uri("https://www.thmobilloyaltyclub.com/api/redeem_voucher_list");
 
             var content = new FormUrlEncodedContent(new[]
             {
-                new KeyValuePair<string, string>("accessKey", "thai$2R@88"),
+                new KeyValuePair<string, string>("accessKey", "ACT^H9&5#"),
                 new KeyValuePair<string, string>("startDate", redeemDate+" 12:00 AM"),
                 new KeyValuePair<string,string>("endDate",redeemDate+" 11:59 PM")
             });

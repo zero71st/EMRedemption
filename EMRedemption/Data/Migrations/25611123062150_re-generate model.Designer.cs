@@ -11,8 +11,8 @@ using System;
 namespace EMRedemption.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("25611115034405_re-generate models")]
-    partial class regeneratemodels
+    [Migration("25611123062150_re-generate model")]
+    partial class regeneratemodel
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -118,6 +118,8 @@ namespace EMRedemption.Data.Migrations
 
                     b.Property<DateTime>("AddDate");
 
+                    b.Property<int>("Amount");
+
                     b.Property<string>("Description")
                         .HasMaxLength(512);
 
@@ -143,6 +145,8 @@ namespace EMRedemption.Data.Migrations
 
                     b.Property<string>("SerialNo")
                         .HasMaxLength(50);
+
+                    b.Property<DateTime>("ValidFrom");
 
                     b.HasKey("Id");
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace EMRedemption.Data.Migrations
 {
-    public partial class regeneratemodels : Migration
+    public partial class regeneratemodel : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -94,6 +94,7 @@ namespace EMRedemption.Data.Migrations
                         .Annotation("MySQL:AutoIncrement", true),
                     AddBy = table.Column<string>(maxLength: 30, nullable: true),
                     AddDate = table.Column<DateTime>(nullable: false),
+                    Amount = table.Column<int>(nullable: false),
                     Description = table.Column<string>(maxLength: 512, nullable: true),
                     ExpireDate = table.Column<DateTime>(nullable: false),
                     LotNo = table.Column<string>(maxLength: 10, nullable: true),
@@ -103,7 +104,8 @@ namespace EMRedemption.Data.Migrations
                     RewardName = table.Column<string>(maxLength: 100, nullable: true),
                     RewardTypeId = table.Column<int>(nullable: false),
                     RewardTypeName = table.Column<string>(maxLength: 100, nullable: true),
-                    SerialNo = table.Column<string>(maxLength: 50, nullable: true)
+                    SerialNo = table.Column<string>(maxLength: 50, nullable: true),
+                    ValidFrom = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
