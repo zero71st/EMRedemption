@@ -15,12 +15,14 @@
                 <input asp-for="RewardCode" class="form-control" />
                 <span asp-validation-for="RewardCode" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="SerialNo" class="control-label"></label>
-                <input asp-for="SerialNo" class="form-control" />
-                <span asp-validation-for="SerialNo" class="text-danger"></span>
-            </div>
-            
+
+            @*<div class="form-group">
+            <label asp-for="SerialNo" class="control-label"></label>
+            <input asp-for="SerialNo" class="form-control" />
+            <span asp-validation-for="SerialNo" class="text-danger"></span>
+        </div>*@
+            <input type="hidden" asp-for="SerialNo" class="form-control" />
+
             <div class="form-group">
                 <label asp-for="Amount" class="control-label"></label>
                 <input asp-for="Amount" class="form-control" />

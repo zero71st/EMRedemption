@@ -78,9 +78,9 @@ else
                 <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].RewardName)
                 </th>
-                <th>
+                @*<th>
                     @Html.DisplayNameFor(model => model.Rewards[0].SerialNo)
-                </th>
+                </th>*@
                 <th>
                     @Html.DisplayNameFor(model => model.Rewards[0].Quantity)
                 </th>
@@ -116,9 +116,9 @@ else
                 <td>
                     @Html.DisplayFor(modelItem => item.RewardName)
                 </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SerialNo)
-                </td>
+                @*<td>
+                    @Html.DisplayFor(modelItem => item.SerialNo).ToString()
+                </td>*@
                 <td>
                     @Html.DisplayFor(modelItem => item.Quantity)
                 </td>
