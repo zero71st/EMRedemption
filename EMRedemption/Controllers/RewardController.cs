@@ -22,6 +22,7 @@ using NPOI.HSSF.UserModel;
 using NPOI.XSSF.UserModel;
 using System.Collections.Specialized;
 using OfficeOpenXml;
+using System.Security;
 
 namespace EMRedemption.Controllers
 {
@@ -45,7 +46,7 @@ namespace EMRedemption.Controllers
 
         [HttpGet]
         [Authorize]
-        public ActionResult Index(int RewardTypeId,string filterName, string keyword)
+        public ActionResult Index(int RewardTypeId, string filterName, string keyword)
         {
             List<string> filters = new List<string>()
             {
@@ -62,7 +63,7 @@ namespace EMRedemption.Controllers
                 RewardTypeId = rewardTypes[0].Id;
 
             var rewards = _db.Rewards
-                             .Where(rw=> rw.RewardTypeId == RewardTypeId)
+                             .Where(rw => rw.RewardTypeId == RewardTypeId)
                              .AsEnumerable();
 
             if (!String.IsNullOrEmpty(keyword))
@@ -214,49 +215,65 @@ namespace EMRedemption.Controllers
 
         public ActionResult OnReadRewards()
         {
-            var rewards = GetRewardsFromExcel(Request);
-
-            StringBuilder sb = new StringBuilder();
-
-            sb.Append("<table class='table'>");
-            sb.Append("<tr>");
-            sb.Append("<th>Lot No.</th>");
-            sb.Append("<th>Reward Type</th>");
-            sb.Append("<th>Reward Code</th>");
-            sb.Append("<th>Reward Name</th>");
-            sb.Append("<th>Serial No</th>");
-            sb.Append("<th>Quantity</th>");
-            sb.Append("<th>Expire Date</th>");
-            sb.Append("</tr>");
-                
-            foreach (var reward in rewards)
+            try
             {
+                var rewards = GetRewardsFromExcel(Request,true);
+                StringBuilder sb = new StringBuilder();
+                sb.Append($"<p>Found reward: <span class='badge'>{rewards.Count()}<span> items</p>");
+                sb.Append("<table class='table'>");
                 sb.Append("<tr>");
-                sb.Append($"<td>{reward.LotNo}</td>");
-                sb.Append($"<td>{reward.RewardTypeName}</td>");
-                sb.Append($"<td>{reward.RewardCode}</td>");
-                sb.Append($"<td>{reward.RewardName}</td>");
-                sb.Append($"<td>{reward.SerialNo}</td>");
-                sb.Append($"<td>{reward.Quantity}</td>");
-                sb.Append($"<td>{reward.ExpireDate}</td>");
+                sb.Append("<th>#</th>");
+                sb.Append("<th>Lot No.</th>");
+                sb.Append("<th>Reward Type</th>");
+                sb.Append("<th>Reward Code</th>");
+                sb.Append("<th>Reward Name</th>");
+                sb.Append("<th>Serial No</th>");
+                sb.Append("<th>Quantity</th>");
+                sb.Append("<th>Expire Date</th>");
                 sb.Append("</tr>");
+                int i = 0;
+                foreach (var reward in rewards)
+                {
+                    i++;
+                    sb.Append("<tr>");
+                    sb.Append($"<td>{i}</td>");
+                    sb.Append($"<td>{reward.LotNo}</td>");
+                    sb.Append($"<td>{reward.RewardTypeName}</td>");
+                    sb.Append($"<td>{reward.RewardCode}</td>");
+                    sb.Append($"<td>{reward.RewardName}</td>");
+                    sb.Append($"<td>{reward.SerialNo}</td>");
+                    sb.Append($"<td>{reward.Quantity}</td>");
+                    sb.Append($"<td>{reward.ExpireDate}</td>");
+                    sb.Append("</tr>");
+                }
+
+                sb.Append("</table>");
+
+                return this.Content(sb.ToString());
             }
-
-            sb.Append("</table>");
-
-            return this.Content(sb.ToString());
+            catch (SecurityException ex)
+            {
+                _logger.LogError(ex, "Invalid Password!");
+                return this.Content("<p class='alert alert-danger'>Invalid Password</p>");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error");
+                return this.Content($"<p class='alert alert-danger'>Found error {ex.Message}</p>");
+            }
         }
 
-        private IEnumerable<Reward> GetRewardsFromExcel(HttpRequest request)
+        private IEnumerable<Reward> GetRewardsFromExcel(HttpRequest request,bool readMode)
         {
             IFormCollection form = request.Form;
             IFormFile file = request.Form.Files[0];
-            string folderName = "Upload";
             string webRootPath = _hostingEnvironment.WebRootPath;
-            string newPath = Path.Combine(webRootPath, folderName);
+            //string folderName = "Upload";
+            //string newPath = Path.Combine(webRootPath, folderName);
             int id = int.Parse(form["RewardId"]);
             string lot = form["LotDate"];
             string description = form["Description"];
+            string password = form["Password"];
 
             var type = _db.RewardTypes.FirstOrDefault(r => r.Id == id);
 
@@ -265,18 +282,19 @@ namespace EMRedemption.Controllers
 
             var rewards = new List<Reward>();
 
-            if (!Directory.Exists(newPath))
-            {
-                try
-                {
-                    Directory.CreateDirectory(newPath);
-                    _logger.LogInformation("Create folder success!");
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex,"Create folder fail");
-                }
-            }
+            // AWS elastic beantalk not allow create folder
+            //if (!Directory.Exists(newPath))
+            //{
+            //    try
+            //    {
+            //        Directory.CreateDirectory(newPath);
+            //        _logger.LogInformation("Create folder success!");
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        _logger.LogError(ex,"Create folder fail");
+            //    }
+            //}
 
             #region NPOI
             /*
@@ -353,33 +371,39 @@ namespace EMRedemption.Controllers
             }
             */
             #endregion
-            string fullPath = Path.Combine(newPath, file.FileName);
-            FileInfo fl = new FileInfo(Path.Combine(webRootPath,folderName, file.FileName));
 
+            //string fullPath = Path.Combine(newPath, file.FileName);
+            string fullPath = Path.Combine(webRootPath, file.FileName);
+            FileInfo fileInfo = new FileInfo(Path.Combine(webRootPath, file.FileName));
+
+            //if (readMode)
+            //{
             try
             {
                 using (var stream = new FileStream(fullPath, FileMode.Create))
                 {
                     file.CopyTo(stream);
                     stream.Position = 0;
+                    //  stream.Dispose();
                 }
-                _logger.LogInformation("Copy file success!");
+
+                _logger.LogInformation("Copy file to host success!");
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Copy file fail");
+                _logger.LogError(ex, "Copy file to failed!");
+                throw ex;
             }
+            //}
 
             try
             {
-                using (ExcelPackage package = new ExcelPackage(fl,"12345678"))
+                using (ExcelPackage package = new ExcelPackage(fileInfo, password))
                 {
                     ExcelWorksheet worksheet = package.Workbook.Worksheets[0];
                     int rowCount = worksheet.Dimension.Rows;
                     int ColCount = worksheet.Dimension.Columns;
-
-                    bool bHeaderRow = true;
 
                     for (int row = 2; row <= rowCount; row++)
                     {
@@ -393,23 +417,19 @@ namespace EMRedemption.Controllers
                         reward.Description = description;
                         reward.AddDate = DateTime.Now;
                         reward.AddBy = User.Identity.Name;
-                        reward.SerialNo = _cryptoSerivce.Encrypt(worksheet.Cells[row,1].Value.ToString());
+                        reward.SerialNo = _cryptoSerivce.Encrypt(worksheet.Cells[row, 1].Value.ToString());
                         reward.Amount = int.Parse(worksheet.Cells[row, 2].Value.ToString());
                         reward.ValidFrom = StringToDate(worksheet.Cells[row, 3].Value.ToString());
                         reward.ExpireDate = StringToDate(worksheet.Cells[row, 4].Value.ToString());
-
                         rewards.Add(reward);
                     }
-
-                    return rewards;
                 }
+                return rewards;
             }
             catch (Exception ex)
             {
-                return null;
+                throw ex;
             }
-
-            //return rewards;
         }
 
         private DateTime StringToDate(string dateString)
@@ -419,9 +439,9 @@ namespace EMRedemption.Controllers
 
         public ActionResult OnImportRewards()
         {
-            var rewards = GetRewardsFromExcel(Request);
             try
             {
+                var rewards = GetRewardsFromExcel(Request,false);
                 //_db.Rewards.AddRange(rewards);
                 foreach (var reward in rewards)
                 {
@@ -431,7 +451,7 @@ namespace EMRedemption.Controllers
 
                 _logger.LogInformation($"Import rewards by {User.Identity.Name} successful");
 
-                return this.Content("<p class='alert alert-success'>Save successful</p>");
+                return this.Content($"<p class='alert alert-success'>Imported reward items:{rewards.Count()} successful!</p>");
             }
             catch (Exception ex)
             {
