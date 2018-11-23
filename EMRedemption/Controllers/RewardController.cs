@@ -254,7 +254,7 @@ namespace EMRedemption.Controllers
             catch (SecurityException ex)
             {
                 _logger.LogError(ex, "Invalid Password!");
-                return this.Content("<p class='alert alert-danger'>Invalid Password</p>");
+                return this.Content("<p class='alert alert-danger'>Invalid Password!</p>");
             }
             catch (Exception ex)
             {
@@ -376,26 +376,25 @@ namespace EMRedemption.Controllers
             string fullPath = Path.Combine(webRootPath, file.FileName);
             FileInfo fileInfo = new FileInfo(Path.Combine(webRootPath, file.FileName));
 
-            //if (readMode)
-            //{
-            try
+            if (readMode)
             {
-                using (var stream = new FileStream(fullPath, FileMode.Create))
+                try
                 {
-                    file.CopyTo(stream);
-                    stream.Position = 0;
-                    //  stream.Dispose();
+                    using (var stream = new FileStream(fullPath, FileMode.Create, FileAccess.ReadWrite, FileShare.ReadWrite))
+                    {
+                        file.CopyTo(stream);
+                        stream.Position = 0;
+                    }
+
+                    _logger.LogInformation("Copy file to host success!");
+
                 }
-
-                _logger.LogInformation("Copy file to host success!");
-
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Copy file to failed!");
+                    throw ex;
+                }
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Copy file to failed!");
-                throw ex;
-            }
-            //}
 
             try
             {
@@ -452,6 +451,11 @@ namespace EMRedemption.Controllers
                 _logger.LogInformation($"Import rewards by {User.Identity.Name} successful");
 
                 return this.Content($"<p class='alert alert-success'>Imported reward items:{rewards.Count()} successful!</p>");
+            }
+            catch (SecurityException ex)
+            {
+                _logger.LogError(ex, "Invalid Password!");
+                return this.Content("<p class='alert alert-danger'>Invalid Password!</p>");
             }
             catch (Exception ex)
             {
