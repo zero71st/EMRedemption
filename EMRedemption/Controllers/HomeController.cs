@@ -36,7 +36,7 @@ namespace EMRedemption.Controllers
         {
             var model = new AppLogListViewModel();
 
-            var logs = _db.AppLogs.OrderByDescending(l => l.Logged).Take(30).AsEnumerable();
+            var logs = _db.AppLogs.OrderByDescending(l => l.Id).Take(30).AsEnumerable();
 
             if(!string.IsNullOrEmpty(keyword))
                 logs = logs.Where(l=> l.Message.Contains(keyword));

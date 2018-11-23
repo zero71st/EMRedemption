@@ -517,6 +517,32 @@ namespace EMRedemption.Controllers
             return View(models);
         }
 
+        private string GetStartDate(string loadDate)
+        {
+            if (string.IsNullOrEmpty(loadDate))
+                throw new ArgumentNullException("Load date can not be null!");
+
+            string[] items = loadDate.Split('-');
+            int y = int.Parse(items[0]);
+            int m = int.Parse(items[1]);
+            int d = int.Parse(items[2]);
+
+            return new DateTime(y, m, d).AddDays(-1).ToString("yyyy-MM-dd"); //Start at yesterday
+        }
+
+        private DateTime GetEndDateTime(string loadDate)
+        {
+            if (string.IsNullOrEmpty(loadDate))
+                throw new ArgumentNullException("Load date can not be null!");
+
+            string[] items = loadDate.Split('-');
+            int y = int.Parse(items[0]);
+            int m = int.Parse(items[1]);
+            int d = int.Parse(items[2]);
+
+            return new DateTime(y, m, d,10,00,0);
+        }
+
         private bool IsRewardEnough(Redemption redemption)
         {
             foreach (var item in redemption.RedemptionItems)
@@ -540,6 +566,9 @@ namespace EMRedemption.Controllers
             else
                 ViewBag.RedeemDate = redeemDate;
 
+            ViewBag.StartDate = GetStartDate(redeemDate);
+            ViewBag.EndDateTime = GetEndDateTime(redeemDate);
+
             var redemptions = await GetRedemptionsAsync(redeemDate);
 
             ViewBag.Quantity = redemptions.Count.ToString();
@@ -561,6 +590,9 @@ namespace EMRedemption.Controllers
 
         private async Task<List<Redemption>> GetRedemptionsAsync(string redeemDate)
         {
+            string startDate = GetStartDate(redeemDate);
+            string endDate = redeemDate;
+
             var redemptions = new List<Redemption>();
             var client = new HttpClient();
 
@@ -578,8 +610,8 @@ namespace EMRedemption.Controllers
             var content = new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("accessKey", "ACT^H9&5#"),
-                new KeyValuePair<string, string>("startDate", redeemDate+" 12:00 AM"),
-                new KeyValuePair<string,string>("endDate",redeemDate+" 11:59 PM")
+                new KeyValuePair<string, string>("startDate", startDate+" 10:00 AM"),
+                new KeyValuePair<string,string>("endDate",endDate+" 10:00 AM")
             });
 
             var resp = await client.PostAsync("", content);

@@ -13,7 +13,7 @@
 
     <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-search"></span>Load</button>
     <p>
-        <small>Redeem Date: <b>@ViewBag.RedeemDate</b> during time: <b>00:00 - 23:59</b> (24 hrs.)</small>
+        <small>Redeem during:<b>@ViewBag.StartDate 10:00 AM</b> to: <b>@ViewBag.RedeemDate 10:00 AM</b> (24 hrs.)</small>
     </p>
 </form>
 
@@ -22,17 +22,25 @@
 {
     var parms = new Dictionary<string, string>
 {
-    {"redeemDate",ViewBag.RedeemDate},
-    {"quantity",ViewBag.Quantity},
+{"redeemDate",ViewBag.RedeemDate},
+{"quantity",ViewBag.Quantity},
 };
+
 
     if (!ViewBag.IsSaveToDatabase)
     {
-        <p>
-            <a class="btn btn-primary" asp-route="confirmToStore" asp-all-route-data="parms">
-                <span class="glyphicon glyphicon-floppy-save">Save</span>
-            </a>
-        </p>
+        if (DateTime.Now.Date > ViewBag.EndDateTime)
+        {
+            <p>
+                <a class="btn btn-primary" asp-route="confirmToStore" asp-all-route-data="parms">
+                    <span class="glyphicon glyphicon-floppy-save">Save</span>
+                </a>
+            </p>
+        }
+        else
+        {
+            <div class="alert alert-warning">View only because current time @DateTime.Now out of peroid to process reward!</div>
+        }
     }
     else
     {
