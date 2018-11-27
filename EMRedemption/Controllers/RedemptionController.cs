@@ -230,25 +230,32 @@ namespace EMRedemption.Controllers
         private StringBuilder CreateMailBody(Redemption redemption)
         {
             StringBuilder sb = new StringBuilder();
-
+            sb.Append("<style>table{width:50%;font-size:18pt;color:white;border-collapse: collapse;margin:auto;border-radius:1em;} th,td{}</style>");
             sb.Append("<body style='font-family:Cordia New;font-size:14pt'><p>เรียน ลูกค้า/ ผู้ใช้บริการแอพพลิเคชั่น  Mobil Loyalty club</p>");
             sb.Append("<p></p><p></p>");
             sb.Append("<p>ขอบคุณที่ใช้บริการสั่งผลิตภัณฑ์โมบิลผ่านแอพพลิเคชั่น Mobil Loyalty กรุณาอ้างอิงรหัสเงินสดลาซาด้าได้จากที่นี่</p>");
-            sb.Append("<p style='color:blue;'>");
-
+            sb.Append("<p>");
+            sb.Append("<table border='1'>");
+            //sb.Append("<tr style='background-color:#4169EF;'><th>รหัสคูปอง</th><th>รายละเอียด</th>");
+            sb.Append("<tr style='background-color:#4169EF;'><th>รหัสคูปอง</th><th>รายละเอียด</th>");
             foreach (var item in redemption.RedemptionItems)
             {
                 foreach (var reward in item.Rewards)
                 {
-                    if (reward.RewardName.Contains("300"))
-                        sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 300 บาท<br>");
-                    if (reward.RewardName.Contains("500"))
-                        sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 500 บาท<br>");
-                    if (reward.RewardName.Contains("1000"))
-                        sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 1000 บาท<br>");
+                    //sb.AppendLine("<tr style='background-color:#DC143C;'>");
+                    sb.AppendLine("<tr style='color:black;'>");
+                    sb.AppendLine($"<td align='center'><b>{_cryptoService.Decrypt(reward.SerialNo)}</b></td>");
+                    sb.AppendLine($"<td align='center'>{ reward.RewardName}</td>");
+                    sb.AppendLine("</tr>");
+                    //if (reward.RewardName.Contains("300"))
+                    //    sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 300 บาท<br>");
+                    //if (reward.RewardName.Contains("500"))
+                    //    sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 500 บาท<br>");
+                    //if (reward.RewardName.Contains("1000"))
+                    //    sb.AppendLine($"{_cryptoService.Decrypt(reward.SerialNo)} คูปองมูลค่า 1000 บาท<br>");
                 }
             }
-
+            sb.Append("</table>");
             sb.Append("</p>");
             sb.Append("<p>อย่าลืม ยิ่งขาย/ซื้อโมบิลมาก ยิ่งได้มาก</p>");
             sb.Append("<p></p><p></p><p></p>");
