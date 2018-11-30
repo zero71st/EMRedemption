@@ -13,7 +13,7 @@
     "function-runtime" : "dotnetcore2.0",
     "function-memory-size" : 256,
     "function-timeout"     : 30,
-    "function-handler"     : "AWSLamdaCallApi::AWSLamdaCallApi.Function::FunctionHandler",
+    "function-handler"     : "AWSLambda3::AWSLambda3.Function::FunctionHandler",
     "function-name"        : "ReadRedemptions",
     "function-role"        : "arn:aws:iam::954920947320:role/service-role/Executor",
     "tracing-mode"         : "PassThrough",
